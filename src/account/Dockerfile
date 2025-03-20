@@ -2,27 +2,27 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 EXPOSE 8080
-EXPOSE 8081
 
 # Use the official .NET 8 SDK image to build the app
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy the solution file and project file first to leverage Docker cache
+# Copy solution and project files
 COPY ["GoCart.sln", "./"]
-COPY ["src/account/account.csproj", "account/"]
-RUN dotnet restore "account/account.csproj"
+COPY ["src/account/account.csproj", "src/account/"]
 
-# Copy the entire source code
+# Copy the rest of the source code
+WORKDIR /src/account
 COPY . .
-WORKDIR "/src/account"
 
 # Build the project
-RUN dotnet build "account.csproj" -c Release -o /app/build
+WORKDIR /src/account
+RUN dotnet build -c Release -o /app/build src/account/account.csproj
 
 # Publish the app
 FROM build AS publish
-RUN dotnet publish "account.csproj" -c Release -o /app/publish /p:UseAppHost=false
+WORKDIR /src/account
+RUN dotnet publish src/account/account.csproj -c Release -o /app/publish /p:UseAppHost=false
 
 # Run the app
 FROM base AS final

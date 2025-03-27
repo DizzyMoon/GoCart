@@ -39,6 +39,16 @@ services:
     networks:
       - microservices
 
+  order:
+    build:
+      context: ..
+      dockerfile: src/order/Dockerfile
+    container_name: order-service
+    ports:
+      - "5005:80"
+    networks:
+      - microservices
+
 networks:
   microservices:
     driver: bridge

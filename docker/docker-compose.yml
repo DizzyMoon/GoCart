@@ -1,0 +1,44 @@
+services:
+  account:
+    build:
+      context: ..
+      dockerfile: src/account/Dockerfile
+    container_name: account-service
+    ports:
+      - "5001:80"
+    networks:
+      - microservices
+
+  payment:
+    build:
+      context: ..
+      dockerfile: src/payment/Dockerfile
+    container_name: payment-service
+    ports:
+      - "5002:80"
+    networks:
+      - microservices
+
+  product:
+    build:
+      context: ..
+      dockerfile: src/product/Dockerfile
+    container_name: product-service
+    ports:
+      - "5003:80"
+    networks:
+      - microservices
+
+  security:
+    build:
+      context: ..
+      dockerfile: src/security/Dockerfile
+    container_name: security-service
+    ports:
+      - "5004:80"
+    networks:
+      - microservices
+
+networks:
+  microservices:
+    driver: bridge

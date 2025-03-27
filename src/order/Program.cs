@@ -1,7 +1,4 @@
 using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Order.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,8 +45,14 @@ app.MapGet("/weatherforecast", () =>
 
 app.MapGet("/test-insert", (DatabaseConnection db) => 
 {
-    db.TestInsert();
-    return "Insert attempted. Check container logs.";
+    bool status = db.TestInsert();
+
+    if (status)
+    {
+        return Results.Ok("Insert successful!");
+    }
+    return Results.BadRequest("Insert failed.");
+
 });
 
 app.Run();

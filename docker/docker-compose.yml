@@ -49,6 +49,32 @@ services:
     networks:
       - microservices
 
+    environment:
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    depends_on:
+      - postgres_db
+
+  postgres_db:
+    image: postgres:latest
+    container_name: postgres_db
+    environment:
+      - POSTGRES_DB=${POSTGRES_DATABASE}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - microservices
+
 networks:
   microservices:
     driver: bridge
+
+volumes:
+  postgres_data:

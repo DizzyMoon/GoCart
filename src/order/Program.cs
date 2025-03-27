@@ -1,7 +1,12 @@
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Order.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddScoped<DatabaseConnection>();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnet/swashbuckle
@@ -40,6 +45,12 @@ app.MapGet("/weatherforecast", () =>
     return forecast;
 })
 .WithName("GetWeatherForecast");
+
+app.MapGet("/test-insert", (DatabaseConnection db) => 
+{
+    db.TestInsert();
+    return "Insert attempted. Check container logs.";
+});
 
 app.Run();
 

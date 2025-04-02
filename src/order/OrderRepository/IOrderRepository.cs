@@ -6,5 +6,6 @@ namespace Order.OrderRepository
   {
     public Task<IEnumerable<OrderModel>> GetQueryCollection();
     public Task<OrderModel> Get(int orderId);
+    public Task<OrderModel> Create(OrderModel order);
   }
 }

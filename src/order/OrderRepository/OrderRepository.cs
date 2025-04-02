@@ -57,5 +57,31 @@ namespace Order.OrderRepository
 
       return order;
     }
+
+    public async Task<OrderModel> Create(OrderModel order)
+    {
+      await using var connection = await GetConnectionAsync();
+      await using var command = new NpgsqlCommand(
+        "INSERT INTO orders (orderNumber, orderDate) VALUES (@orderNumber, @orderDate) RETURNING id, orderNumber, orderDate;",
+        connection);
+      
+      command.Parameters.AddWithValue("@orderNumber", order.OrderNumber);
+      command.Parameters.AddWithValue("@orderDate", order.OrderDate);
+
+      OrderModel newOrder = null;
+      await using var reader = await command.ExecuteReaderAsync();
+
+      if (await reader.ReadAsync())
+      {
+        newOrder = new OrderModel
+        {
+          Id = reader.GetInt32(reader.GetOrdinal("id")),
+          OrderNumber = reader.GetString(reader.GetOrdinal("orderNumber")),
+          OrderDate = reader.GetDateTime(reader.GetOrdinal("orderDate"))
+        };
+      }
+
+      return newOrder;
+    }
   }
 }

@@ -22,5 +22,19 @@ namespace order.OrderService
     {
       return await _orderRepository.Get(orderId);
     }
+
+    public async Task<OrderModel> Create(CreateOrderModel dto)
+    {
+      string orderNumber = Guid.NewGuid().ToString().ToUpper();
+      DateTime orderDate = DateTime.Now;
+
+      var newOrder = new OrderModel
+      {
+        OrderNumber = orderNumber,
+        OrderDate = orderDate
+      };
+
+      return await _orderRepository.Create(newOrder);
+    }
   }
 }

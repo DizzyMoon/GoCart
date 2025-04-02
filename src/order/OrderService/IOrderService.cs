@@ -6,6 +6,7 @@ namespace Order.OrderService
   {
     Task<IEnumerable<OrderModel>> GetQueryCollection();
     Task<OrderModel> Get(int orderId);
+    Task<OrderModel> Create(CreateOrderModel dto);
   }
   
 }

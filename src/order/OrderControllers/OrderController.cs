@@ -43,7 +43,23 @@ namespace Order.OrderControllers
       var result = await _orderService.Get(orderId);
       return Ok(result);
     }
-    
-    public async Task<IActionResult> Create([FromBody])
+
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderModel))]
+    [ProducesResponseType(StatusCodes.Status405MethodNotAllowed, Type = typeof(OrderModel))]
+    [Produces("application/json")]
+    [HttpPost]
+    [Route("")]
+    public async Task<IActionResult> Create()
+    {
+      try
+      {
+        var result = await _orderService.Create(new CreateOrderModel());
+        return Ok(result);
+      }
+      catch (InvalidOperationException ex)
+      {
+        return StatusCode(StatusCodes.Status405MethodNotAllowed, ex.Message);
+      }
+    }
   }
 }

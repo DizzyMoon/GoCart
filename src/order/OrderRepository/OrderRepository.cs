@@ -6,56 +6,56 @@ namespace Order.OrderRepository
   public class OrderRepository : IOrderRepository
   {
     private readonly NpgsqlDataSource _dataSource;
-    private readonly ILogger<OrderRepository> _logger;
 
-    public OrderRepository(NpgsqlDataSource dataSource, ILogger<OrderRepository> logger)
+    public OrderRepository(NpgsqlDataSource dataSource)
     {
       _dataSource = dataSource;
-      _logger = logger;
-      _logger.LogInformation("OrderRepository created with injected NpgsqlDataSource.");
+    }
+
+    private async Task<NpgsqlConnection> GetConnectionAsync()
+    {
+      return await _dataSource.OpenConnectionAsync();
     }
 
     public async Task<IEnumerable<OrderModel>> GetQueryCollection()
     {
       var orders = new List<OrderModel>();
-      _logger.LogInformation("Executing GetQueryCollection using NpgsqlDataSource");
-
-      await using (var connection = await _dataSource.OpenConnectionAsync())
+      
+      await using var connection = await GetConnectionAsync();
+      await using var command = new NpgsqlCommand("SELECT * FROM orders", connection);
+      await using var reader = await command.ExecuteReaderAsync();
+      
+      while (await reader.ReadAsync())
       {
-        _logger.LogDebug("Database connection obtained from pool.");
-        try
+        orders.Add(new OrderModel
         {
-          await using (var command = new NpgsqlCommand("SELECT * FROM orders", connection))
-          using (var reader = await command.ExecuteReaderAsync())
-          {
-            _logger.LogDebug("Command executed, reading results...");
-            while (await reader.ReadAsync())
-            {
-              int idOrdinal = reader.GetOrdinal("id");
-              int orderNumberOrdinal = reader.GetOrdinal("orderNumber");
-
-              orders.Add(new OrderModel()
-              {
-                Id = reader.GetInt32(idOrdinal),
-                OrderNumber = reader.GetString(orderNumberOrdinal)
-              });
-            }
-            _logger.LogInformation("Retrieved {OrderCount} orders.", orders.Count);
-          }
-        }
-        catch (NpgsqlException pgEx)
-        {
-          _logger.LogError(pgEx, "!!! PostgreSQL Error during GetQueryCollection. SQL State: {SqlState}", pgEx.SqlState);
-          throw;
-        }
-        catch (Exception ex)
-        {
-          _logger.LogError(ex, "!!! General Error during GetQueryCollection");
-          throw;
-        }
+          Id = reader.GetInt32(reader.GetOrdinal("id")),
+          OrderNumber = reader.GetString(reader.GetOrdinal("orderNumber"))
+        });
       }
 
       return orders;
+    }
+
+    public async Task<OrderModel> Get(int orderId)
+    {
+      OrderModel order = null;
+      
+      await using var connection = await GetConnectionAsync();
+      await using var command = new NpgsqlCommand("SELECT * FROM orders WHERE id = @orderId", connection);
+      command.Parameters.AddWithValue("orderId", orderId);
+      await using var reader = await command.ExecuteReaderAsync();
+
+      if (await reader.ReadAsync())
+      {
+        order = new OrderModel
+        {
+          Id = reader.GetInt32(reader.GetOrdinal("id")),
+          OrderNumber = reader.GetString(reader.GetOrdinal("orderNumber"))
+        };
+      }
+
+      return order;
     }
   }
 }

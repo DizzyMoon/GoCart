@@ -11,21 +11,15 @@ builder.Logging.AddConsole();
 
 
 var configuration = builder.Configuration;
-string host = configuration["POSTGRES_HOST"] ?? throw new InvalidOperationException("POSTGRES_HOST not configured");
-string port = configuration["POSTGRES_PORT"] ?? throw new InvalidOperationException("POSTGRES_PORT not configured");
-string database = configuration["POSTGRES_DATABASE"] ?? throw new InvalidOperationException("POSTGRES_DATABASE not configured");
-string user = configuration["POSTGRES_USER"] ?? throw new InvalidOperationException("POSTGRES_USER not configured");
-string password = configuration["POSTGRES_PASSWORD"] ?? throw new InvalidOperationException("POSTGRES_PASSWORD not configured");
-string connectionString = $"Host={host};Port={port};Database={database};Username={user};Password={password};";
+var host = configuration["POSTGRES_HOST"] ?? throw new InvalidOperationException("POSTGRES_HOST not configured");
+var port = configuration["POSTGRES_PORT"] ?? throw new InvalidOperationException("POSTGRES_PORT not configured");
+var database = configuration["POSTGRES_DATABASE"] ?? throw new InvalidOperationException("POSTGRES_DATABASE not configured");
+var user = configuration["POSTGRES_USER"] ?? throw new InvalidOperationException("POSTGRES_USER not configured");
+var password = configuration["POSTGRES_PASSWORD"] ?? throw new InvalidOperationException("POSTGRES_PASSWORD not configured");
+var connectionString = $"Host={host};Port={port};Database={database};Username={user};Password={password};";
 
 
 builder.Services.AddSingleton<NpgsqlDataSource>(new NpgsqlDataSourceBuilder(connectionString).Build());
-
-Console.WriteLine($"--- Database Configuration ---");
-Console.WriteLine($" Target: Host={host}, Port={port}, Database={database}, User={user}");
-Console.WriteLine($" NpgsqlDataSource registered.");
-Console.WriteLine($"--- End Database Config ---");
-
 
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();

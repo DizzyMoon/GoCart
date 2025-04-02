@@ -30,16 +30,17 @@ namespace Order.OrderRepository
         orders.Add(new OrderModel
         {
           Id = reader.GetInt32(reader.GetOrdinal("id")),
-          OrderNumber = reader.GetString(reader.GetOrdinal("orderNumber"))
+          OrderNumber = reader.GetString(reader.GetOrdinal("orderNumber")),
+          OrderDate = reader.GetDateTime(reader.GetOrdinal("orderDate"))
         });
       }
 
       return orders;
     }
 
-    public async Task<OrderModel> Get(int orderId)
+    public async Task<OrderModel?> Get(int orderId)
     {
-      OrderModel order = null;
+      OrderModel order = null!;
       
       await using var connection = await GetConnectionAsync();
       await using var command = new NpgsqlCommand("SELECT * FROM orders WHERE id = @orderId", connection);
@@ -51,7 +52,8 @@ namespace Order.OrderRepository
         order = new OrderModel
         {
           Id = reader.GetInt32(reader.GetOrdinal("id")),
-          OrderNumber = reader.GetString(reader.GetOrdinal("orderNumber"))
+          OrderNumber = reader.GetString(reader.GetOrdinal("orderNumber")),
+          OrderDate = reader.GetDateTime(reader.GetOrdinal("orderDate"))
         };
       }
 
@@ -68,7 +70,7 @@ namespace Order.OrderRepository
       command.Parameters.AddWithValue("@orderNumber", order.OrderNumber);
       command.Parameters.AddWithValue("@orderDate", order.OrderDate);
 
-      OrderModel newOrder = null;
+      OrderModel newOrder = null!;
       await using var reader = await command.ExecuteReaderAsync();
 
       if (await reader.ReadAsync())
@@ -82,6 +84,23 @@ namespace Order.OrderRepository
       }
 
       return newOrder;
+    }
+
+    public async Task<OrderModel?> Delete(int orderId)
+    {
+      var orderModelToDelete = await Get(orderId);
+
+      if (orderModelToDelete == null)
+      {
+        return null;
+      }
+
+      await using var connection = await GetConnectionAsync();
+      await using var command = new NpgsqlCommand("DELETE FROM orders WHERE id = @orderId", connection);
+      command.Parameters.AddWithValue("orderId", orderId);
+
+      await command.ExecuteNonQueryAsync();
+      return orderModelToDelete;
     }
   }
 }

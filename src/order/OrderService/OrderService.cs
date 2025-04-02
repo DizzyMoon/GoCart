@@ -20,7 +20,14 @@ namespace order.OrderService
 
     public async Task<OrderModel> Get(int orderId)
     {
-      return await _orderRepository.Get(orderId);
+      var order = await _orderRepository.Get(orderId);
+
+      if (order == null)
+      {
+        throw new KeyNotFoundException($"Order with ID {orderId} not found.");
+      }
+
+      return order;
     }
 
     public async Task<OrderModel> Create(CreateOrderModel dto)
@@ -35,6 +42,18 @@ namespace order.OrderService
       };
 
       return await _orderRepository.Create(newOrder);
+    }
+
+    public async Task<OrderModel> Delete(int orderId)
+    {
+      var orderToDelete = await _orderRepository.Delete(orderId);
+
+      if (orderToDelete == null)
+      {
+        throw new KeyNotFoundException($"Order with ID {orderId} not found.");
+      }
+
+      return orderToDelete;
     }
   }
 }

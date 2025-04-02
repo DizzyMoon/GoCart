@@ -44,6 +44,12 @@ namespace Order.OrderControllers
       return Ok(result);
     }
 
+    /// <summary>
+    /// Opret en ny Order
+    /// </summary>
+    /// <response code="200">Success</response>
+    /// <response code="405">Method Not Allowed</response>
+    /// <returns>Nye order returneres</returns>
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderModel))]
     [ProducesResponseType(StatusCodes.Status405MethodNotAllowed, Type = typeof(OrderModel))]
     [Produces("application/json")]
@@ -60,6 +66,22 @@ namespace Order.OrderControllers
       {
         return StatusCode(StatusCodes.Status405MethodNotAllowed, ex.Message);
       }
+    }
+
+    /// <summary>
+    /// Slet en Order
+    /// </summary>
+    /// <param name="orderId"></param>
+    /// <response code="200">Success</response>
+    /// <returns>Slettet order returneres</returns>
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderModel))]
+    [Produces("application/json")]
+    [HttpDelete]
+    [Route("{orderId:int}")]
+    public async Task<IActionResult> Delete([FromRoute] int orderId)
+    {
+      var result = await _orderService.Delete(orderId);
+      return Ok(result);
     }
   }
 }

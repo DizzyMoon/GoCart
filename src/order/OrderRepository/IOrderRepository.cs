@@ -4,8 +4,9 @@ namespace Order.OrderRepository
 {
   public interface IOrderRepository
   {
-    public Task<IEnumerable<OrderModel>> GetQueryCollection();
-    public Task<OrderModel> Get(int orderId);
-    public Task<OrderModel> Create(OrderModel order);
+    Task<IEnumerable<OrderModel>> GetQueryCollection();
+    Task<OrderModel?> Get(int orderId);
+    Task<OrderModel> Create(OrderModel order);
+    Task<OrderModel?> Delete(int orderId);
   }
 }

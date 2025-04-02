@@ -14,6 +14,13 @@ namespace Order.Infrastructure
       string user = System.Environment.GetEnvironmentVariable("POSTGRES_USER");
       string password = System.Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
 
+      Console.WriteLine($"--- Debug Connection Info ---");
+      Console.WriteLine($"POSTGRES_HOST: {host}");
+      Console.WriteLine($"POSTGRES_PORT: {port}");
+      Console.WriteLine($"POSTGRES_DATABASE: {database}");
+      Console.WriteLine($"POSTGRES_USER: {user}");
+      Console.WriteLine($"--- End Debug ---");
+
       if (string.IsNullOrEmpty(host) ||
           string.IsNullOrEmpty(port) ||
           string.IsNullOrEmpty(database) ||
@@ -30,7 +37,7 @@ namespace Order.Infrastructure
 
     public bool TestInsert()
     {
-      NpgsqlConnection connection = null;
+      NpgsqlConnection connection = GetConnection();
       try
       {
         Console.WriteLine("Attempting TestInsert...");

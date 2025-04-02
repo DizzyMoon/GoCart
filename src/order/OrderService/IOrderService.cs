@@ -1,6 +1,6 @@
 using Order.OrderModels;
 
-namespace Order.Service
+namespace Order.OrderService
 {
   public interface IOrderService
   {

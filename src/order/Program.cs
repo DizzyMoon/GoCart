@@ -1,7 +1,8 @@
 using Microsoft.OpenApi.Models;
-using order.OrderRepository;
 using Npgsql;
-using Order.Service;
+using Order.OrderRepository;
+using order.OrderService;
+using Order.OrderService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,8 +27,8 @@ Console.WriteLine($" NpgsqlDataSource registered.");
 Console.WriteLine($"--- End Database Config ---");
 
 
-builder.Services.AddScoped<IOrderRepository, order.OrderRepository.OrderRepository>();
-builder.Services.AddScoped<IOrderService, order.OrderService.OrderService>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

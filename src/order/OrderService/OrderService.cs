@@ -1,6 +1,6 @@
 using Order.OrderModels;
-using order.OrderRepository;
-using Order.Service;
+using Order.OrderRepository;
+using Order.OrderService;
 
 namespace order.OrderService
 {

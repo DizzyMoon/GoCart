@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Order.OrderModels;
-using Order.Service;
+using Order.OrderService;
 
 namespace Order.OrderControllers 
 {
+  [ApiController]
+  [Route("[controller]")]
   public class OrderController : ControllerBase
   {
     private readonly IOrderService _orderService;

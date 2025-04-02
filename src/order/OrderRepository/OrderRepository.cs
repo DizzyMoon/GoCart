@@ -1,9 +1,7 @@
 using Npgsql;
 using Order.OrderModels;
-using Microsoft.Extensions.Logging;
-using System.Data;
 
-namespace order.OrderRepository
+namespace Order.OrderRepository
 {
   public class OrderRepository : IOrderRepository
   {

@@ -18,8 +18,8 @@
   <component name="ChangeListManager">
     <list default="true" id="7d25e165-2e9d-4c03-b596-2fd20f26fee8" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.GoCart/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.GoCart/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GoCart.sln" beforeDir="false" afterPath="$PROJECT_DIR$/GoCart.sln" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/order/Models/Order.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/order/OrderControllers/OrderController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/order/OrderControllers/OrderController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/order/OrderRepository/OrderRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/order/OrderRepository/OrderRepository.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/order/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/order/Program.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -235,6 +235,7 @@
       <workItem from="1743068021017" duration="4000" />
       <workItem from="1743089551938" duration="48000" />
       <workItem from="1743089619227" duration="1749000" />
+      <workItem from="1743592453800" duration="653000" />
     </task>
     <servers />
   </component>

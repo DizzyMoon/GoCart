@@ -1,6 +1,6 @@
 using Order.OrderModels;
 
-namespace order.OrderRepository
+namespace Order.OrderRepository
 {
   public interface IOrderRepository
   {

@@ -1,16 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Account.Models;
+using Account.AccountModels;
 
-namespace Service
+namespace Account.AccountService
 {
     public interface IAccountService
     {
-        Task<AccountModel> GetByIdAsync(Guid id);
-        Task<IEnumerable<AccountModel>> GetAllAsync();
-        Task CreateAsync(AccountModel account);
-        Task UpdateAsync(Guid id, AccountModel updatedAccount);
-        Task DeleteAsync(Guid id);
+        Task<IEnumerable<AccountModel>> GetQueryCollection();
+        Task<AccountModel> Get(int accountId);
+        Task<AccountModel> Create(CreateAccountModel account);
+        Task<AccountModel> Delete(int accountId);
     }
 }

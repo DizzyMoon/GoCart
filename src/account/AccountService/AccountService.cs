@@ -1,10 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Account.Models;
-using Repository;
+using Account.AccountModels;
+using Account.AccountRepository;
+using Account.AccountService;
 
-namespace Service
+namespace account.AccountService
 {
     public class AccountService : IAccountService
     {
@@ -15,46 +13,39 @@ namespace Service
             _accountRepository = accountRepository;
         }
 
-        public async Task<AccountModel> GetByIdAsync(Guid id)
+        public Task<IEnumerable<AccountModel>> GetQueryCollection()
         {
-            var account = await _accountRepository.GetByIdAsync(id);
+            return _accountRepository.GetQueryCollection();
+        }
+        
+        public async Task<AccountModel> Get(int accountId)
+        {
+            var account = await _accountRepository.Get(accountId);
+
             if (account == null)
             {
-                throw new Exception("Account not found.");
+                throw new KeyNotFoundException($"Account with ID {accountId} not found.");
             }
+
             return account;
         }
 
-        public Task<IEnumerable<AccountModel>> GetAllAsync()
+
+        public async Task<AccountModel> Create(CreateAccountModel dto)
         {
-            return _accountRepository.GetAllAsync();
+            return await _accountRepository.Create(dto);
         }
 
-        public async Task CreateAsync(AccountModel account)
+        public async Task<AccountModel> Delete(int accountId)
         {
-            await _accountRepository.AddAsync(account);
-        }
+            var accountToDelete = await _accountRepository.Delete(accountId);
 
-        public async Task UpdateAsync(Guid id, AccountModel updatedAccount)
-        {
-            var existing = await _accountRepository.GetByIdAsync(id);
-            if (existing == null)
+            if (accountToDelete == null)
             {
-                throw new Exception("Account not found.");
+                throw new KeyNotFoundException($"Account with ID {accountId} not found.");
             }
 
-            await _accountRepository.UpdateAsync(id, updatedAccount);
-        }
-
-        public async Task DeleteAsync(Guid id)
-        {
-            var existing = await _accountRepository.GetByIdAsync(id);
-            if (existing == null)
-            {
-                throw new Exception("Account not found.");
-            }
-
-            await _accountRepository.DeleteAsync(id);
+            return accountToDelete;
         }
     }
 }

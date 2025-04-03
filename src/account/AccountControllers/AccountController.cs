@@ -1,15 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using Account.Models;
-using Service;
+using Account.AccountModels;
+using Account.AccountService;
 
-namespace AccountControllers 
+namespace Account.AccountControllers 
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
@@ -21,12 +17,14 @@ namespace AccountControllers
         /// Get all accounts
         /// </summary>
         /// <returns></returns>
-        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<AccountModel>))]
-        public async Task<IActionResult> GetAllAsync()
+        [Produces("application/json")]
+        [HttpGet]
+        [Route("")]
+        public async Task<IActionResult> GetQueryCollection()
         {
-            var accounts = await _accountService.GetAllAsync();
-            return Ok(accounts);
+            var result = await _accountService.GetQueryCollection();
+            return Ok(result);
         }
 
         /// <summary>
@@ -37,9 +35,9 @@ namespace AccountControllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AccountModel))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id)
+        public async Task<IActionResult> Get([FromRoute] int accountId)
         {
-            var account = await _accountService.GetByIdAsync(id);
+            var account = await _accountService.Get(accountId);
             if (account == null)
                 return NotFound();
             
@@ -47,70 +45,43 @@ namespace AccountControllers
         }
 
         /// <summary>
-        /// Create new account 
+        /// Opret en ny Account
         /// </summary>
-        /// <param name="account"></param>
-        /// <returns></returns>
+        /// <response code="200">Success</response>
+        /// <response code="405">Method Not Allowed</response>
+        /// <returns>Nye account returneres</returns>
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AccountModel))]
+        [ProducesResponseType(StatusCodes.Status405MethodNotAllowed, Type = typeof(AccountModel))]
+        [Produces("application/json")]
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AccountModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreateAsync([FromBody] AccountModel account)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            
-            await _accountService.CreateAsync(account);
-            return CreatedAtAction(nameof(GetByIdAsync), new {id = account.Id}, account);
-        }
-
-        /// <summary>
-        /// Update an existing account 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="updatedAccount"></param>
-        /// <returns></returns>
-        [HttpPut("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdateAsync([FromRoute] Guid id, [FromBody] AccountModel updatedAccount)
+        [Route("")]
+        public async Task<IActionResult> Create([FromBody] CreateAccountModel dto)
         {
             try
             {
-                await _accountService.UpdateAsync(id, updatedAccount);
-                return NoContent();
+                var result = await _accountService.Create(dto);
+                return Ok(result);
             }
-            catch (Exception ex)
+            catch (InvalidOperationException ex)
             {
-                return NotFound(new {message = ex.Message});
+                return StatusCode(StatusCodes.Status405MethodNotAllowed, ex.Message);
             }
         }
 
         /// <summary>
-        /// Delete an account 
+        /// Slet en Account 
         /// </summary>
-        /// <param name="id">Account ID</param>
-        /// <returns></returns>
-        [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult> DeleteAsync([FromRoute] Guid id )
+        /// <param name="accountId"></param>
+        /// <response code="200">Success</response>
+        /// <returns>Slettet account returneres</returns>
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AccountModel))]
+        [Produces("application/json")]
+        [HttpDelete]
+        [Route("{accountId:int}")]
+        public async Task<ActionResult> Delete([FromRoute] int accountId)
         {
-            try 
-            {
-                await _accountService.DeleteAsync(id);
-                return NoContent();
-            }
-            catch(Exception ex)
-            {
-                return NotFound(new { message = ex.Message});
-            }
+            var result = await _accountService.Delete(accountId);
+            return Ok(result);
         }
-
-
-
-
-
-
-
     }
 }

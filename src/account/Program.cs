@@ -1,8 +1,8 @@
 using Microsoft.OpenApi.Models;
 using Npgsql;
-using Order.OrderRepository;
-using order.OrderService;
-using Order.OrderService;
+using Account.AccountRepository;
+using account.AccountService;
+using Account.AccountService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +13,7 @@ builder.Logging.AddConsole();
 var configuration = builder.Configuration;
 var host = configuration["POSTGRES_HOST"] ?? throw new InvalidOperationException("POSTGRES_HOST not configured");
 var port = configuration["POSTGRES_PORT"] ?? throw new InvalidOperationException("POSTGRES_PORT not configured");
-var database = configuration["POSTGRES_DATABASE"] ?? throw new InvalidOperationException("POSTGRES_DATABASE not configured");
+var database = configuration["POSTGRES_DATABASE_ACCOUNT"] ?? throw new InvalidOperationException("POSTGRES_DATABASE not configured");
 var user = configuration["POSTGRES_USER"] ?? throw new InvalidOperationException("POSTGRES_USER not configured");
 var password = configuration["POSTGRES_PASSWORD"] ?? throw new InvalidOperationException("POSTGRES_PASSWORD not configured");
 var connectionString = $"Host={host};Port={port};Database={database};Username={user};Password={password};";
@@ -21,14 +21,14 @@ var connectionString = $"Host={host};Port={port};Database={database};Username={u
 
 builder.Services.AddSingleton<NpgsqlDataSource>(new NpgsqlDataSourceBuilder(connectionString).Build());
 
-builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddScoped<IAccountService, AccountService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Order Service API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Account Service API", Version = "v1" });
 });
 
 var app = builder.Build();

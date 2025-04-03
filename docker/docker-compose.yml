@@ -52,7 +52,7 @@ services:
     image: postgres:latest
     container_name: postgres_db
     environment:
-      - POSTGRES_DB=${POSTGRES_DATABASE}
+      - POSTGRES_DB=${POSTGRES_DATABASE_ACCOUNT}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:

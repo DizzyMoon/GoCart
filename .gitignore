@@ -1,6 +1,8 @@
 # DB Credentials
 *launchsettings.json
 .env
+.idea
+.vscode
 
 # Created by https://www.toptal.com/developers/gitignore/api/csharp
 # Edit at https://www.toptal.com/developers/gitignore?templates=csharp

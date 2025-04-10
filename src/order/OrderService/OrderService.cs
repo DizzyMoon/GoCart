@@ -22,7 +22,7 @@ namespace order.OrderService
       return await _orderRepository.GetQueryCollection();
     }
 
-    public async Task<OrderModel> Get(int orderId)
+    public async Task<OrderModel?> Get(int orderId)
     {
       var order = await _orderRepository.Get(orderId);
 

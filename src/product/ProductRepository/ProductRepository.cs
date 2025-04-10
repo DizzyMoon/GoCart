@@ -50,21 +50,23 @@ namespace Product.ProductRepository {
             command.Parameters.AddWithValue("productCode", productCode);
             await using var reader = await command.ExecuteReaderAsync();
 
-            if (await reader.ReadAsync()) {
-                // Deserialize the specifications field to a dictionary
-                string SpecificationsJson = reader.GetString(reader.GetOrdinal("specifications"));
-
-                product = new ProductModel {
-                    ProductCode = reader.GetString(reader.GetOrdinal("productCode")),
-                    Name = reader.GetString(reader.GetOrdinal("name")),
-                    Price = reader.GetDouble(reader.GetOrdinal("price")),
-                    Description = reader.GetString(reader.GetOrdinal("description")),
-                    Variants = reader.GetFieldValue<string[]>(reader.GetOrdinal("variants")),
-                    Discounts = reader.GetDouble(reader.GetOrdinal("discounts")),
-                    Images = reader.GetFieldValue<string[]>(reader.GetOrdinal("images")),
-                    Specifications = JsonSerializer.Deserialize<Dictionary<string, object>>(SpecificationsJson)
-                };
+            if (!await reader.ReadAsync())
+            {
+                return product;
             }
+            
+            var specificationsJson = reader.GetString(reader.GetOrdinal("specifications"));
+
+            product = new ProductModel {
+                ProductCode = reader.GetString(reader.GetOrdinal("productCode")),
+                Name = reader.GetString(reader.GetOrdinal("name")),
+                Price = reader.GetDouble(reader.GetOrdinal("price")),
+                Description = reader.GetString(reader.GetOrdinal("description")),
+                Variants = reader.GetFieldValue<string[]>(reader.GetOrdinal("variants")),
+                Discounts = reader.GetDouble(reader.GetOrdinal("discounts")),
+                Images = reader.GetFieldValue<string[]>(reader.GetOrdinal("images")),
+                Specifications = JsonSerializer.Deserialize<Dictionary<string, object>>(specificationsJson) ?? new Dictionary<string, object>()
+            };
 
             return product;
         }

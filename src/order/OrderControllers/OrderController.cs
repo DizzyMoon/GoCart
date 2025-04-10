@@ -38,12 +38,17 @@ namespace Order.OrderControllers
     /// <param name="orderId"></param>
     /// <returns>En order returneres</returns>
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderModel))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Produces("application/json")]
     [HttpGet]
     [Route("{orderId:int}")]
     public async Task<IActionResult> Get([FromRoute] int orderId)
     {
       var result = await _orderService.Get(orderId);
+      if (result == null)
+      {
+        return NotFound();
+      }
       return Ok(result);
     }
 

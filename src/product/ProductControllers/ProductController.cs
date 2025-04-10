@@ -25,17 +25,23 @@ namespace Product.ProductControllers {
         }
         
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductModel))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces("application/json")]
         [HttpGet]
         [Route("{productCode}")]
         public async Task<ActionResult<ProductModel>> Get(string productCode)
         {
-            if (productCode == null || productCode == ""){
+            if (string.IsNullOrEmpty(productCode))
+            {
                 return BadRequest("A valid product code must be provided.");
             }
 
             try {
                 var result = await _productService.Get(productCode);
+                if (result == null)
+                {
+                    return NotFound();
+                }
                 return Ok(result);
             } catch (Exception e){
                 return StatusCode(500, $"Internal server error: {e.Message}");

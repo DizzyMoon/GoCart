@@ -13,7 +13,7 @@ CREATE TABLE products (
 
 INSERT INTO products (ProductCode, Name, Price, Description, Variants, Discounts, Images, Specifications)
 VALUES (
-           'PROD-4567',
+           'PROD-A1B2C3D4',
            'Premium Organic Coffee Beans - Ethiopian Yirgacheffe',
            19.99,
            'Single-origin, light-bodied coffee with bright, floral notes and a clean finish. Ethically sourced and freshly roasted.',
@@ -34,7 +34,7 @@ VALUES (
 
 INSERT INTO products (ProductCode, Name, Price, Description, Variants, Discounts, Images, Specifications)
 VALUES (
-           'PROD-8901',
+           'PROD-E5F6G7H8',
            'Comfortable Cotton T-Shirt - Heather Grey',
            25.00,
            'Classic crew neck t-shirt made from 100% organic cotton. Soft, breathable, and perfect for everyday wear.',
@@ -52,7 +52,7 @@ VALUES (
 
 INSERT INTO products (ProductCode, Name, Price, Description, Variants, Discounts, Images, Specifications)
 VALUES (
-           'PROD-2345',
+           'PROD-I9J0K1L2',
            'Wireless Bluetooth Headphones - Noise Cancelling',
            149.99,
            'Over-ear headphones with active noise cancellation for immersive sound. High-quality audio and comfortable earcups for extended listening.',
@@ -72,7 +72,7 @@ VALUES (
 
 INSERT INTO products (ProductCode, Name, Price, Description, Variants, Discounts, Images, Specifications)
 VALUES (
-           'PROD-6789',
+           'PROD-M3N4O5P6',
            'Artisan Sourdough Bread - Classic Loaf',
            6.50,
            'Hand-crafted sourdough bread with a crispy crust and a chewy, tangy interior. Made with organic flour and a long fermentation process.',
@@ -89,7 +89,7 @@ VALUES (
 
 INSERT INTO products (ProductCode, Name, Price, Description, Variants, Discounts, Images, Specifications)
 VALUES (
-           'PROD-0123',
+           'PROD-Q7R8S9T0',
            'Stainless Steel Water Bottle - 750ml',
            22.95,
            'Reusable water bottle made from high-quality stainless steel. Keeps drinks cold for 24 hours and hot for 12 hours.',

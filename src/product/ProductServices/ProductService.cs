@@ -20,7 +20,7 @@ namespace Product.ProductServices{
             return await _productRepository.GetQueryCollection();
         }
         
-        public async Task<ProductModel> Get(string productCode)
+        public async Task<ProductModel?> Get(string productCode)
         {
             return await _productRepository.Get(productCode);
         }

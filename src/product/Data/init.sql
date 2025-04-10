@@ -3,12 +3,12 @@ DROP TABLE IF EXISTS products;
 CREATE TABLE products (
                           ProductCode VARCHAR(255) PRIMARY KEY,
                           Name VARCHAR(255) NOT NULL,
-                          Price NUMERIC,
-                          Description TEXT,
+                          Price NUMERIC NOT NULL,
+                          Description TEXT NOT NULL,
                           Variants TEXT[],
                           Discounts NUMERIC,
-                          Images TEXT[],
-                          Specifications JSONB
+                          Images TEXT[] NOT NULL,
+                          Specifications JSONB NOT NULL
 );
 
 INSERT INTO products (ProductCode, Name, Price, Description, Variants, Discounts, Images, Specifications)

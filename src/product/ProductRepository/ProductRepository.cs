@@ -68,5 +68,53 @@ namespace Product.ProductRepository {
 
             return product;
         }
+
+        public async Task<ProductModel?> Create(ProductModel product)
+        {
+            if (product == null)
+            {
+                throw new ArgumentNullException(nameof(product));
+            }
+            
+            await using var connection = await GetConnectionAsync();
+            await using var command = new NpgsqlCommand(@"
+                INSERT INTO products (ProductCode, Name, Price, Description, Variants, Discounts, Images, Specifications)
+                VALUES (@ProductCode, @Name, @Price, @Description, @Variants, @Discounts, @Images, @Specifications::jsonb)
+                RETURNING ProductCode, Name, Price, Description, Variants, Discounts, Images, Specifications::TEXT", connection);
+
+            command.Parameters.AddWithValue("ProductCode", product.ProductCode);
+            command.Parameters.AddWithValue("Name", product.Name);
+            command.Parameters.AddWithValue("Price", product.Price);
+            command.Parameters.AddWithValue("Description", product.Description);
+            command.Parameters.AddWithValue("Variants", product.Variants ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("Discounts", product.Discounts ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("Images", product.Images);
+            command.Parameters.AddWithValue("Specifications", JsonSerializer.Serialize(product.Specifications));
+
+            ProductModel? newProduct = null;
+            await using var reader = await command.ExecuteReaderAsync();
+
+            if (await reader.ReadAsync())
+            {
+                string SpecificationsJson = reader.GetString(reader.GetOrdinal("specifications"));
+                newProduct = new ProductModel
+                {
+                    ProductCode = reader.GetString(reader.GetOrdinal("ProductCode")),
+                    Name = reader.GetString(reader.GetOrdinal("Name")),
+                    Price = reader.GetDouble(reader.GetOrdinal("Price")),
+                    Description = reader.GetString(reader.GetOrdinal("Description")),
+                    Variants = reader.IsDBNull(reader.GetOrdinal("Variants"))
+                        ? null
+                        : reader.GetFieldValue<string[]>(reader.GetOrdinal("Variants")),
+                    Discounts = reader.IsDBNull(reader.GetOrdinal("Discounts"))
+                        ? (double?)null
+                        : reader.GetDouble(reader.GetOrdinal("Discounts")),
+                    Images = reader.GetFieldValue<string[]>(reader.GetOrdinal("Images")),
+                    Specifications = JsonSerializer.Deserialize<Dictionary<string, object>>(SpecificationsJson)
+                };
+            }
+
+            return newProduct;
+        }
     }
 }

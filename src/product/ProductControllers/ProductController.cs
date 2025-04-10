@@ -14,29 +14,7 @@ namespace Product.ProductControllers {
         {
             _productService = productService;
         }
-
-        [HttpPost]
-        public async Task<ActionResult<string>> CreateProduct([FromBody] ProductModel product)
-        {
-            if (product == null)
-            {
-                return BadRequest("Product data is required.");
-            }
-
-            try
-            {
-                // Call the ProductService to create the product
-                var productCode = await _productService.CreateProduct(product);
-
-                // Return the ProductCode of the created product
-                return CreatedAtAction(nameof(GetProduct), new { productCode }, productCode);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
+        
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductModel))]
         [Produces("application/json")]
         [HttpGet]
@@ -45,24 +23,40 @@ namespace Product.ProductControllers {
             var result = await _productService.GetQueryCollection();
             return Ok(result);
         }
-
-
-
+        
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductModel))]
         [Produces("application/json")]
         [HttpGet]
         [Route("{productCode}")]
-        public async Task<ActionResult<ProductModel>> GetProduct(string productCode)
+        public async Task<ActionResult<ProductModel>> Get(string productCode)
         {
             if (productCode == null || productCode == ""){
                 return BadRequest("A valid product code must be provided.");
             }
 
             try {
-                var result = await _productService.GetProduct(productCode);
+                var result = await _productService.Get(productCode);
                 return Ok(result);
             } catch (Exception e){
                 return StatusCode(500, $"Internal server error: {e.Message}");
+            }
+        }
+
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductModel))]
+        [ProducesResponseType(StatusCodes.Status405MethodNotAllowed, Type = typeof(ProductModel))]
+        [Produces("application/json")]
+        [HttpPost]
+        [Route("")]
+        public async Task<ActionResult> Create([FromBody] CreateProductModel product)
+        {
+            try
+            {
+                var result = await _productService.Create(product);
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(StatusCodes.Status405MethodNotAllowed, ex.Message);
             }
         }
 

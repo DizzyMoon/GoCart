@@ -4,8 +4,8 @@ namespace Product.ProductModels {
         public string Name {get; set;}
         public double Price {get; set;}
         public string Description {get;set;}
-        public string[] Variants {get; set;}
-        public double Discounts {get; set;}
+        public string[]? Variants {get; set;}
+        public double? Discounts {get; set;}
         public string[] Images {get; set;}
         public Dictionary<string, object> Specifications {get; set;}
 
@@ -38,5 +38,16 @@ namespace Product.ProductModels {
                 Images = images;
                 Specifications = specifications;
             }
+    }
+
+    public class CreateProductModel
+    {
+        public string Name { get; set; }
+        public double Price { get; set; }
+        public string Description { get; set; }
+        public string[]? Variants { get; set; }
+        public double? Discounts { get; set; }
+        public string[] Images { get; set; }
+        public Dictionary<string, object> Specifications { get; set; }
     }
 }

@@ -31,9 +31,9 @@ namespace Order.OrderRepository
       {
         orders.Add(new OrderModel
         {
-          Id = reader.GetInt32(reader.GetOrdinal("id")),
-          OrderNumber = reader.GetString(reader.GetOrdinal("orderNumber")),
-          OrderDate = reader.GetDateTime(reader.GetOrdinal("orderDate"))
+          Id = reader.GetInt32(reader.GetOrdinal("ID")),
+          OrderNumber = reader.GetString(reader.GetOrdinal("OrderNumber")),
+          OrderDate = reader.GetDateTime(reader.GetOrdinal("OrderDate"))
         });
       }
 
@@ -45,7 +45,7 @@ namespace Order.OrderRepository
       OrderModel order = null!;
       
       await using var connection = await GetConnectionAsync();
-      await using var command = new NpgsqlCommand("SELECT * FROM orders WHERE id = @orderId", connection);
+      await using var command = new NpgsqlCommand("SELECT * FROM orders WHERE ID = @orderId", connection);
       command.Parameters.AddWithValue("orderId", orderId);
       await using var reader = await command.ExecuteReaderAsync();
 
@@ -53,9 +53,9 @@ namespace Order.OrderRepository
       {
         order = new OrderModel
         {
-          Id = reader.GetInt32(reader.GetOrdinal("id")),
-          OrderNumber = reader.GetString(reader.GetOrdinal("orderNumber")),
-          OrderDate = reader.GetDateTime(reader.GetOrdinal("orderDate"))
+          Id = reader.GetInt32(reader.GetOrdinal("ID")),
+          OrderNumber = reader.GetString(reader.GetOrdinal("OrderNumber")),
+          OrderDate = reader.GetDateTime(reader.GetOrdinal("OrderDate"))
         };
       }
 
@@ -66,11 +66,11 @@ namespace Order.OrderRepository
     {
       await using var connection = await GetConnectionAsync();
       await using var command = new NpgsqlCommand(
-        "INSERT INTO orders (orderNumber, orderDate) VALUES (@orderNumber, @orderDate) RETURNING id, orderNumber, orderDate;",
+        "INSERT INTO orders (OrderNumber, OrderDate) VALUES (@OrderNumber, @OrderDate) RETURNING ID, OrderNumber, OrderDate;",
         connection);
       
-      command.Parameters.AddWithValue("@orderNumber", order.OrderNumber);
-      command.Parameters.AddWithValue("@orderDate", order.OrderDate);
+      command.Parameters.AddWithValue("@OrderNumber", order.OrderNumber);
+      command.Parameters.AddWithValue("@OrderDate", order.OrderDate);
 
       OrderModel newOrder = null!;
       await using var reader = await command.ExecuteReaderAsync();
@@ -79,9 +79,9 @@ namespace Order.OrderRepository
       {
         newOrder = new OrderModel
         {
-          Id = reader.GetInt32(reader.GetOrdinal("id")),
-          OrderNumber = reader.GetString(reader.GetOrdinal("orderNumber")),
-          OrderDate = reader.GetDateTime(reader.GetOrdinal("orderDate"))
+          Id = reader.GetInt32(reader.GetOrdinal("ID")),
+          OrderNumber = reader.GetString(reader.GetOrdinal("OrderNumber")),
+          OrderDate = reader.GetDateTime(reader.GetOrdinal("OrderDate"))
         };
       }
 
@@ -98,8 +98,8 @@ namespace Order.OrderRepository
       }
 
       await using var connection = await GetConnectionAsync();
-      await using var command = new NpgsqlCommand("DELETE FROM orders WHERE id = @orderId", connection);
-      command.Parameters.AddWithValue("orderId", orderId);
+      await using var command = new NpgsqlCommand("DELETE FROM orders WHERE ID = @OrderId", connection);
+      command.Parameters.AddWithValue("OrderId", orderId);
 
       await command.ExecuteNonQueryAsync();
       return orderModelToDelete;

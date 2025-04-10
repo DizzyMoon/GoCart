@@ -1,3 +1,7 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Order.OrderModels;
 using Order.OrderRepository;
 using Order.OrderService;
@@ -13,7 +17,7 @@ namespace order.OrderService
       _orderRepository = orderRepository;
     }
 
-    public async Task<IEnumerable<OrderModel>> GetQueryCollection()
+    public async Task<IEnumerable> GetQueryCollection()
     {
       return await _orderRepository.GetQueryCollection();
     }

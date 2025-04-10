@@ -1,6 +1,9 @@
+using System;
+using System.Collections.Generic;
 using Npgsql;
 using Product.ProductModels;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace Product.ProductRepository {
     public class ProductRepository : IProductRepository {

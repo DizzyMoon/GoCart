@@ -1,7 +1,7 @@
 using Npgsql;
 using System.Threading.Tasks;
 using System;
-
+using System.Collections.Generic;
 using Product.ProductRepository;
 using Product.ProductModels;
 

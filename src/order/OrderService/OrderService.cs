@@ -17,7 +17,7 @@ namespace order.OrderService
       _orderRepository = orderRepository;
     }
 
-    public async Task<IEnumerable> GetQueryCollection()
+    public async Task<IEnumerable<OrderModel>> GetQueryCollection()
     {
       return await _orderRepository.GetQueryCollection();
     }

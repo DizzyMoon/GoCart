@@ -23,7 +23,7 @@ namespace Product.ProductRepository {
 
 
           while (await reader.ReadAsync())
-            {
+          { 
               string SpecificationsJson = reader.GetString(reader.GetOrdinal("specifications"));
 
               products.Add(new ProductModel
@@ -37,7 +37,7 @@ namespace Product.ProductRepository {
                 Images = reader.GetFieldValue<string[]>(reader.GetOrdinal("images")),
                 Specifications = JsonSerializer.Deserialize<Dictionary<string, object>>(SpecificationsJson)
               });
-            }
+          }
 
           return products;
         }

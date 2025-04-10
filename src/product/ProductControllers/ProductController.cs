@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using Product.ProductModels;
 using Product.ProductServices;
 
-namespace Product.ProductControllers{
+namespace Product.ProductControllers {
     [ApiController]
     [Route("[controller]")]
-    class ProductController : ControllerBase {
+    public class ProductController : ControllerBase {
         private readonly IProductService _productService;
 
         public ProductController(IProductService productService)

@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: payment
+  name: payment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: payment
+  template:
+    metadata:
+      labels:
+        io.kompose.service: payment
+    spec:
+      containers:
+        - env:
+            - name: POSTGRES_DATABASE
+            - name: POSTGRES_HOST
+            - name: POSTGRES_PASSWORD
+            - name: POSTGRES_PORT
+            - name: POSTGRES_USER
+          image: payment
+          livenessProbe:
+            exec:
+              command:
+                - curl
+                - -f
+                - http://localhost:8080/health
+            failureThreshold: 3
+            periodSeconds: 30
+          name: payment-service
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+      restartPolicy: Always

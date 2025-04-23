@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Order.OrderModels;
 using Order.OrderService;
 
-namespace Order.OrderControllers 
+namespace Order.OrderControllers
 {
   [ApiController]
   [Route("[controller]")]
@@ -13,7 +13,7 @@ namespace Order.OrderControllers
   {
     private readonly IOrderService _orderService;
 
-    public OrderController(IOrderService orderService) 
+    public OrderController(IOrderService orderService)
     {
       _orderService = orderService;
     }

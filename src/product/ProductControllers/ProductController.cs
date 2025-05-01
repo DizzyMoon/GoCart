@@ -68,6 +68,23 @@ namespace Product.ProductControllers {
             }
         }
 
+
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductModel))]
+        [ProducesResponseType(StatusCodes.Status405MethodNotAllowed, Type = typeof(ProductModel))]
+        [Produces("application/json")]
+        [HttpPatch]
+        [Route("")]
+        public async Task<ActionResult> Update([FromBody] ProductModel product)
+        {
+            try
+            {
+                var result = await _productService.Update(product);
+                return Ok(result);
+            } catch (InvalidOperationException ex) {
+                return StatusCode(StatusCodes.Status405MethodNotAllowed, ex.Message);
+            }
+        }
+
     }
 }
 

@@ -7,7 +7,7 @@ namespace Product.ProductServices{
         Task<IEnumerable<ProductModel>> GetQueryCollection();
         Task<ProductModel?> Get(string productCode);
         Task<ProductModel?> Create(CreateProductModel product);
-        Task<string> Update(string productCode, ProductModel product);
-        Task<string> Delete(string productCode);
+        Task<bool> Update(ProductModel product);
+        Task<bool> Delete(string productCode);
     }
 }

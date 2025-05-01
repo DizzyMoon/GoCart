@@ -74,6 +74,49 @@ namespace Product.ProductRepository {
             return product;
         }
 
+        public async Task<bool> Update(ProductModel product)
+        {
+            if (product == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            await using var connection = await GetConnectionAsync();
+            await using var command = new NpgsqlCommand(@"
+                UPDATE products
+                    SET Name = @Name,
+                        Price = @Price,
+                        Description = @Description,
+                        Variants = @Variants,
+                        Discounts = @Discounts,
+                        Images = @Images,
+                    Specifications = @Specifications::jsonb
+                WHERE  productCode = @ProductCode", connection);
+            command.Parameters.AddWithValue("ProductCode", product.ProductCode);
+            command.Parameters.AddWithValue("Name", product.Name);
+            command.Parameters.AddWithValue("Price", product.Price);
+            command.Parameters.AddWithValue("Description", product.Description);
+            command.Parameters.AddWithValue("Variants", product.Variants ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("Discounts", product.Discounts ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("Images", product.Images ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("Specifications", JsonSerializer.Serialize(product.Specifications));
+
+            var rowsAffected = await command.ExecuteNonQueryAsync();
+            return rowsAffected > 0;
+        }
+
+        public async Task<bool> Delete(string productCode)
+        {
+            await using var connection = await GetConnectionAsync();
+            await using var command = new NpgsqlCommand(
+                @"DELETE FROM products WHERE productCode = @ProductCode", connection);
+            
+            command.Parameters.AddWithValue("ProductCode", productCode);
+            
+            var rowsAffected = await command.ExecuteNonQueryAsync();
+            return rowsAffected > 0;
+        }
+
         public async Task<ProductModel?> Create(ProductModel product)
         {
             if (product == null)

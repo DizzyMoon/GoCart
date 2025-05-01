@@ -30,38 +30,37 @@ namespace Product.ProductServices{
             return $"PROD-{Guid.NewGuid().ToString().ToUpper().Substring(0, 8)}";
         }
         
-        public async Task<ProductModel?> Create(CreateProductModel productDTO)
+        public async Task<ProductModel?> Create(CreateProductModel productDto)
         {
-            if (productDTO == null)
-            {
-                throw new ArgumentNullException(nameof(productDTO));
-            }
+            ArgumentNullException.ThrowIfNull(productDto);
 
-            string productCode = UniqueProductCode();
+            var productCode = UniqueProductCode();
 
             var newProduct = new ProductModel
             {
                 ProductCode = productCode,
-                Name = productDTO.Name,
-                Price = productDTO.Price,
-                Description = productDTO.Description,
-                Variants = productDTO.Variants,
-                Discounts = productDTO.Discounts,
-                Images = productDTO.Images,
-                Specifications = productDTO.Specifications
+                Name = productDto.Name,
+                Price = productDto.Price,
+                Description = productDto.Description,
+                Variants = productDto.Variants,
+                Discounts = productDto.Discounts,
+                Images = productDto.Images,
+                Specifications = productDto.Specifications
             };
 
             return await _productRepository.Create(newProduct);
         }
 
-        public Task<string> Update(string productCode, ProductModel product)
+        public async Task<bool> Update(ProductModel product)
         {
-            throw new NotImplementedException();
+            ArgumentNullException.ThrowIfNull(product);
+            return await _productRepository.Update(product);
         }
 
-        public Task<string> Delete(string productCode)
+        public async Task<bool> Delete(string productCode)
         {
-            throw new NotImplementedException();
+            ArgumentNullException.ThrowIfNull(productCode);
+            return await _productRepository.Delete(UniqueProductCode());
         }
     }
 }

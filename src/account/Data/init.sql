@@ -13,4 +13,4 @@ INSERT INTO accounts (Email, Name, PasswordHash, PhoneNumber)
 VALUES
     ('alice@example.com', 'Alice Johnson', 'hashed_password_123', '+1234567890'),
     ('bob@example.com', 'Bob Smith', 'hashed_password_456', '+1987654321'),
-    ('carol@example.com', 'Carol Davis', 'hashed_password_789', NULL);
+    ('carol@example.com', 'Carol Davis', 'hashed_password_789', '+2342652367');

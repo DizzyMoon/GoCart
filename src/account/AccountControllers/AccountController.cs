@@ -17,7 +17,7 @@ namespace Account.AccountControllers
         /// Get all accounts
         /// </summary>
         /// <returns></returns>
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<AccountModel>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AccountModel))]
         [Produces("application/json")]
         [HttpGet]
         [Route("")]

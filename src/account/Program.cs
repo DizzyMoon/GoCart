@@ -1,8 +1,9 @@
+using System;
+using System.Linq;
 using Microsoft.OpenApi.Models;
-using Npgsql;
-using Account.AccountRepository;
-using account.AccountService;
-using Account.AccountService;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 

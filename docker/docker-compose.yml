@@ -10,13 +10,17 @@ services:
       - microservices
 
     environment:
-      - POSTGRES_HOST=${POSTGRES_HOST}
-      - POSTGRES_PORT=${POSTGRES_PORT}
-      - POSTGRES_DATABASE=${POSTGRES_DATABASE_ACCOUNT}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=${ACCOUNT_DB_HOST}
+      - POSTGRES_PORT=${ACCOUNT_DB_PORT}
+      - POSTGRES_DATABASE=${ACCOUNT_DB}
+      - POSTGRES_USER=${ACCOUNT_DB_USER}
+      - POSTGRES_PASSWORD=${ACCOUNT_DB_PASSWORD}
     depends_on:
-      - postgres_db
+      - account_db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      retries: 3
 
   payment:
     build:
@@ -27,6 +31,18 @@ services:
       - "5002:8080"
     networks:
       - microservices
+    environment:
+      - POSTGRES_HOST=${PAYMENT_DB_HOST}
+      - POSTGRES_PORT=${PAYMENT_DB_PORT}
+      - POSTGRES_DATABASE=${PAYMENT_DB}
+      - POSTGRES_USER=${PAYMENT_DB_USER}
+      - POSTGRES_PASSWORD=${PAYMENT_DB_PASSWORD}
+    depends_on:
+      - payment_db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      retries: 3
 
   product:
     build:
@@ -37,6 +53,19 @@ services:
       - "5003:8080"
     networks:
       - microservices
+    environment:
+      - POSTGRES_HOST=${PRODUCT_DB_HOST}
+      - POSTGRES_PORT=${PRODUCT_DB_PORT}
+      - POSTGRES_DATABASE=${PRODUCT_DB}
+      - POSTGRES_USER=${PRODUCT_DB_USER}
+      - POSTGRES_PASSWORD=${PRODUCT_DB_PASSWORD}
+      - ASPNETCORE_ENVIRONMENT="Development"
+    depends_on:
+      - product_db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      retries: 3
 
   security:
     build:
@@ -45,20 +74,111 @@ services:
     container_name: security-service
     ports:
       - "5004:8080"
+    environment:
+      - POSTGRES_HOST=${SECURITY_DB_HOST}
+      - POSTGRES_PORT=${SECURITY_DB_PORT}
+      - POSTGRES_DATABASE=${SECURITY_DB}
+      - POSTGRES_USER=${SECURITY_DB_USER}
+      - POSTGRES_PASSWORD=${SECURITY_DB_PASSWORD}
+    depends_on:
+      - security_db
+    networks:
+      - microservices
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      retries: 3
+
+  order:
+    build:
+      context: ..
+      dockerfile: src/order/Dockerfile
+    container_name: order-service
+    ports:
+      - "5005:8080"
+    networks:
+      - microservices
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      retries: 3
+
+    environment:
+      - POSTGRES_HOST=${ORDER_DB_HOST}
+      - POSTGRES_PORT=${ORDER_DB_PORT}
+      - POSTGRES_DATABASE=${ORDER_DB}
+      - POSTGRES_USER=${ORDER_DB_USER}
+      - POSTGRES_PASSWORD=${ORDER_DB_PASSWORD}
+    depends_on:
+      - order_db
+
+  product_db:
+    image: postgres:latest
+    container_name: product_db
+    environment:
+      - POSTGRES_DB=${PRODUCT_DB}
+      - POSTGRES_USER=${PRODUCT_DB_USER}
+      - POSTGRES_PASSWORD=${PRODUCT_DB_PASSWORD}
+    volumes:
+      - product_data:/var/lib/postgresql/data
+    ports:
+      - "5436:5432"
     networks:
       - microservices
 
-  postgres_db:
+  account_db:
     image: postgres:latest
-    container_name: postgres_db
+    container_name: account_db
     environment:
-      - POSTGRES_DB=${POSTGRES_DATABASE_ACCOUNT}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${ACCOUNT_DB}
+      - POSTGRES_USER=${ACCOUNT_DB_USER}
+      - POSTGRES_PASSWORD=${ACCOUNT_DB_PASSWORD}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - account_data:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+    networks:
+      - microservices
+
+  order_db:
+    image: postgres:latest
+    container_name: order_db
+    environment:
+      - POSTGRES_DB=${ORDER_DB}
+      - POSTGRES_USER=${ORDER_DB_USER}
+      - POSTGRES_PASSWORD=${ORDER_DB_PASSWORD}
+    volumes:
+      - order_data:/var/lib/postgresql/data
     ports:
       - "5434:5432"
+    networks:
+      - microservices
+
+  payment_db:
+    image: postgres:latest
+    container_name: payment_db
+    environment:
+      - POSTGRES_DB=${PAYMENT_DB}
+      - POSTGRES_USER=${PAYMENT_DB_USER}
+      - POSTGRES_PASSWORD=${PAYMENT_DB_PASSWORD}
+    volumes:
+      - payment_data:/var/lib/postgresql/data
+    ports:
+      - "5437:5432"
+    networks:
+      - microservices
+
+  security_db:
+    image: postgres:latest
+    container_name: security_db
+    environment:
+      - POSTGRES_DB=${SECURITY_DB}
+      - POSTGRES_USER=${SECURITY_DB_USER}
+      - POSTGRES_PASSWORD=${SECURITY_DB_PASSWORD}
+    volumes:
+      - security_data:/var/lib/postgresql/data
+    ports:
+      - "5438:5432"
     networks:
       - microservices
 
@@ -67,4 +187,8 @@ networks:
     driver: bridge
 
 volumes:
-  postgres_data:
+  account_data:
+  payment_data:
+  product_data:
+  security_data:
+  order_data:

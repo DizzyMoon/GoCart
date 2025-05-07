@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: order
+  name: order
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: order
+  template:
+    metadata:
+      labels:
+        io.kompose.service: order
+    spec:
+      containers:
+        - env:
+            - name: POSTGRES_DATABASE
+            - name: POSTGRES_HOST
+            - name: POSTGRES_PASSWORD
+            - name: POSTGRES_PORT
+            - name: POSTGRES_USER
+          image: order
+          livenessProbe:
+            exec:
+              command:
+                - curl
+                - -f
+                - http://localhost:8080/health
+            failureThreshold: 3
+            periodSeconds: 30
+          name: order-service
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+      restartPolicy: Always

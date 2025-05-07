@@ -59,6 +59,7 @@ services:
       - POSTGRES_DATABASE=${PRODUCT_DB}
       - POSTGRES_USER=${PRODUCT_DB_USER}
       - POSTGRES_PASSWORD=${PRODUCT_DB_PASSWORD}
+      - ASPNETCORE_ENVIRONMENT="Development"
     depends_on:
       - product_db
     healthcheck:

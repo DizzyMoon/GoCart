@@ -72,15 +72,35 @@ namespace Product.ProductControllers {
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductModel))]
         [ProducesResponseType(StatusCodes.Status405MethodNotAllowed, Type = typeof(ProductModel))]
         [Produces("application/json")]
-        [HttpPatch]
+        [HttpPut]
         [Route("")]
         public async Task<ActionResult> Update([FromBody] ProductModel product)
         {
             try
             {
                 var result = await _productService.Update(product);
-                return Ok(result);
+                return Ok($"Updated {product.ProductCode} successfully");
             } catch (InvalidOperationException ex) {
+                return StatusCode(StatusCodes.Status405MethodNotAllowed, ex.Message);
+            }
+        }
+
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductModel))]
+        [ProducesResponseType(StatusCodes.Status405MethodNotAllowed, Type = typeof(ProductModel))]
+        [Produces("application/json")]
+        [HttpDelete]
+        [Route("{productCode}")]
+        public async Task<ActionResult> Delete(string productCode) {
+            try {
+                var result = await _productService.Delete(productCode);
+                if (!result)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError,
+                        "An unexpected error occured while attempting to delete " + productCode);
+                }
+                
+                return Ok($"{productCode} successfully deleted");
+            } catch(InvalidOperationException ex) {
                 return StatusCode(StatusCodes.Status405MethodNotAllowed, ex.Message);
             }
         }

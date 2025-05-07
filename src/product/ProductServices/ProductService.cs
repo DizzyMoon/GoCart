@@ -60,7 +60,7 @@ namespace Product.ProductServices{
         public async Task<bool> Delete(string productCode)
         {
             ArgumentNullException.ThrowIfNull(productCode);
-            return await _productRepository.Delete(UniqueProductCode());
+            return await _productRepository.Delete(productCode);
         }
     }
 }

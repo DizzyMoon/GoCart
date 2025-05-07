@@ -107,6 +107,7 @@ namespace Product.ProductRepository {
 
         public async Task<bool> Delete(string productCode)
         {
+            Console.WriteLine("productCode: " + productCode);
             await using var connection = await GetConnectionAsync();
             await using var command = new NpgsqlCommand(
                 @"DELETE FROM products WHERE productCode = @ProductCode", connection);

@@ -3,6 +3,12 @@ using Npgsql;
 using Order.OrderRepository;
 using order.OrderService;
 using Order.OrderService;
+using System;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 

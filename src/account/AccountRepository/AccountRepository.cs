@@ -65,7 +65,7 @@ namespace Account.AccountRepository
         }
 
 
-        public async Task<AccountModel> Create(CreateAccountModel account)
+        public async Task<AccountModel> Create(AccountModelRequest account)
         {
             await using var connection = await GetConnectionAsync();
             await using var command = new NpgsqlCommand(
@@ -92,6 +92,57 @@ namespace Account.AccountRepository
             }
 
             return newAccount;
+        }
+
+        public async Task<AccountModel> Update(int id, AccountUpdateRequest account)
+        {
+            await using var connection = await GetConnectionAsync();
+
+            // Get existing account
+            AccountModel existingAccount;
+            await using (var cmd = new NpgsqlCommand("SELECT id, email, name, passwordhash, phonenumber FROM accounts WHERE id = @id", connection))
+            {
+                cmd.Parameters.AddWithValue("@id", id);
+                await using var reader = await cmd.ExecuteReaderAsync();
+                if (!await reader.ReadAsync())
+                    throw new InvalidOperationException("Account not found");
+
+                existingAccount = new AccountModel
+                {
+                    Id = reader.GetInt32(0),
+                    Email = reader.GetString(1),
+                    Name = reader.GetString(2),
+                    PasswordHash = reader.GetString(3),
+                    PhoneNumber = reader.GetString(4)
+                };
+            }
+
+            // Use provided values or keep existing
+            var email = account.Email ?? existingAccount.Email;
+            var name = account.Name ?? existingAccount.Name;
+            var passwordHash = account.PasswordHash ?? existingAccount.PasswordHash;
+            var phoneNumber = account.PhoneNumber ?? existingAccount.PhoneNumber;
+
+            // Update
+            await using (var updateCmd = new NpgsqlCommand(
+                             @"UPDATE accounts SET email = @Email, name = @Name, passwordhash = @PasswordHash, phonenumber = @PhoneNumber WHERE id = @Id", connection))
+            {
+                updateCmd.Parameters.AddWithValue("@Id", id);
+                updateCmd.Parameters.AddWithValue("@Email", email);
+                updateCmd.Parameters.AddWithValue("@Name", name);
+                updateCmd.Parameters.AddWithValue("@PasswordHash", passwordHash);
+                updateCmd.Parameters.AddWithValue("@PhoneNumber", phoneNumber);
+                await updateCmd.ExecuteNonQueryAsync();
+            }
+
+            return new AccountModel
+            {
+                Id = id,
+                Email = email,
+                Name = name,
+                PasswordHash = passwordHash,
+                PhoneNumber = phoneNumber
+            };
         }
 
         public async Task<AccountModel?> Delete(int accountId)

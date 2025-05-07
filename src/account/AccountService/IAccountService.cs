@@ -6,7 +6,8 @@ namespace Account.AccountService
     {
         Task<IEnumerable<AccountModel>> GetQueryCollection();
         Task<AccountModel> Get(int accountId);
-        Task<AccountModel> Create(CreateAccountModel account);
+        Task<AccountModel> Create(AccountModelRequest account);
+        Task<AccountModel> Update(int id, AccountUpdateRequest account);
         Task<AccountModel> Delete(int accountId);
     }
 }

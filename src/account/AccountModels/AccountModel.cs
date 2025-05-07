@@ -10,12 +10,20 @@ namespace Account.AccountModels
         public string PhoneNumber { get; set; }
     }
 
-    public class CreateAccountModel
+    public class AccountModelRequest
     {
         public string Email { get; set; }
         public string Name {get; set;}
         public string PasswordHash { get; set;}
         public string PhoneNumber { get; set; }
+    }
+    
+    public class AccountUpdateRequest
+    {
+        public string? Email { get; set; }
+        public string? Name { get; set; }
+        public string? PasswordHash { get; set; }
+        public string? PhoneNumber { get; set; }
     }
 
 }

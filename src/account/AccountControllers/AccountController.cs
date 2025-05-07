@@ -35,12 +35,12 @@ namespace Account.AccountControllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AccountModel))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Get([FromRoute] int accountId)
+        public async Task<IActionResult> Get([FromRoute] int id)
         {
-            var account = await _accountService.Get(accountId);
+            var account = await _accountService.Get(id);
             if (account == null)
                 return NotFound();
-            
+    
             return Ok(account);
         }
 
@@ -55,7 +55,7 @@ namespace Account.AccountControllers
         [Produces("application/json")]
         [HttpPost]
         [Route("")]
-        public async Task<IActionResult> Create([FromBody] CreateAccountModel dto)
+        public async Task<IActionResult> Create([FromBody] AccountModelRequest dto)
         {
             try
             {
@@ -65,6 +65,22 @@ namespace Account.AccountControllers
             catch (InvalidOperationException ex)
             {
                 return StatusCode(StatusCodes.Status405MethodNotAllowed, ex.Message);
+            }
+        }
+        
+        [HttpPatch("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AccountModel))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Update(int id, [FromBody] AccountUpdateRequest account)
+        {
+            try
+            {
+                var updated = await _accountService.Update(id, account);
+                return Ok(updated);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(ex.Message);
             }
         }
 

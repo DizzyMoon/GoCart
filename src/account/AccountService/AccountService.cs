@@ -31,9 +31,14 @@ namespace account.AccountService
         }
 
 
-        public async Task<AccountModel> Create(CreateAccountModel dto)
+        public async Task<AccountModel> Create(AccountModelRequest dto)
         {
             return await _accountRepository.Create(dto);
+        }
+
+        public async Task<AccountModel> Update(int id, AccountUpdateRequest dto)
+        {
+            return await _accountRepository.Update(id, dto);
         }
 
         public async Task<AccountModel> Delete(int accountId)

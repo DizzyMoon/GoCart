@@ -1,6 +1,8 @@
 using Account.AccountModels;
 using Account.AccountRepository;
 using Account.AccountService;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace account.AccountService
 {
@@ -30,10 +32,27 @@ namespace account.AccountService
             return account;
         }
 
-
         public async Task<AccountModel> Create(AccountModelRequest dto)
         {
-            return await _accountRepository.Create(dto);
+            var hashedPassword = HashPassword(dto.Password);
+
+            var accountWithHashedPassword = new AccountModelRequest
+            {
+                Email = dto.Email,
+                Name = dto.Name,
+                Password = hashedPassword,
+                PhoneNumber = dto.PhoneNumber
+            };
+
+            return await _accountRepository.Create(accountWithHashedPassword);
+        }
+
+        private string HashPassword(string password)
+        {
+            using var sha256 = SHA256.Create();
+            var bytes = Encoding.UTF8.GetBytes(password);
+            var hash = sha256.ComputeHash(bytes);
+            return Convert.ToBase64String(hash);
         }
 
         public async Task<AccountModel> Update(int id, AccountUpdateRequest dto)

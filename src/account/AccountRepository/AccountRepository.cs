@@ -73,7 +73,7 @@ namespace Account.AccountRepository
             
             command.Parameters.AddWithValue("@email", account.Email);
             command.Parameters.AddWithValue("@name", account.Name);
-            command.Parameters.AddWithValue("@passwordhash", account.PasswordHash);
+            command.Parameters.AddWithValue("@passwordhash", account.Password);
             command.Parameters.AddWithValue("@phonenumber", account.PhoneNumber);
             
             AccountModel newAccount = null!;

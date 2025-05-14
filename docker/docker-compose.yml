@@ -53,6 +53,7 @@ services:
       - POSTGRES_DATABASE=${PAYMENT_DB}
       - POSTGRES_USER=${PAYMENT_DB_USER}
       - POSTGRES_PASSWORD=${PAYMENT_DB_PASSWORD}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
     depends_on:
       - payment_db
     healthcheck:

@@ -57,7 +57,6 @@ public class PaymentService : IPaymentService
 
             return new CreatePaymentResponse
             {
-                ClientSecret = paymentIntent.ClientSecret,
                 PaymentIntentId = paymentIntent.Id,
                 Amount = paymentIntent.Amount,
                 Currency = paymentIntent.Currency

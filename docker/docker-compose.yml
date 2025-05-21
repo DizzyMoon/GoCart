@@ -1,4 +1,20 @@
 services:
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - microservices
+    environment:
+      - RABBITMQ_USER=${RABBITMQ_USER}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+    healthcheck:
+      test: ["CMD", "rabbitmq", "status"]
+      interval: 30s
+      retries: 5
+  
   account:
     build:
       context: ..
@@ -37,6 +53,7 @@ services:
       - POSTGRES_DATABASE=${PAYMENT_DB}
       - POSTGRES_USER=${PAYMENT_DB_USER}
       - POSTGRES_PASSWORD=${PAYMENT_DB_PASSWORD}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
     depends_on:
       - payment_db
     healthcheck:

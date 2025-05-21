@@ -1,0 +1,16 @@
+{
+    "profiles": {
+      "Account": {
+        "commandName": "Account",
+        "environmentVariables": {
+          "POSTGRES_HOST": "localhost",
+          "POSTGRES_PORT": "5432",
+          "POSTGRES_DATABASE": "account",
+          "POSTGRES_USER": "postgre",
+          "POSTGRES_PASSWORD": "oHchQ3o28tyEwrBvxdU4"
+        },
+        "dotnetRunMessages": true,
+        "applicationUrl": "http://localhost:5000"
+      }
+    }
+  }

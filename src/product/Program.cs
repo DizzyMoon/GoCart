@@ -9,12 +9,13 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Product.ProductRepository;
 using Product.ProductServices;
+using Elastic.Clients.Elasticsearch;
+using Elastic.Transport;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
-
 
 var configuration = builder.Configuration;
 var host = configuration["POSTGRES_HOST"] ?? throw new InvalidOperationException("POSTGRES_HOST not configured");
@@ -23,8 +24,12 @@ var database = configuration["POSTGRES_DATABASE"] ?? throw new InvalidOperationE
 var user = configuration["POSTGRES_USER"] ?? throw new InvalidOperationException("POSTGRES_USER not configured");
 var password = configuration["POSTGRES_PASSWORD"] ?? throw new InvalidOperationException("POSTGRES_PASSWORD not configured");
 var connectionString = $"Host={host};Port={port};Database={database};Username={user};Password={password};";
+var esCloudId = configuration["ELASTIC_CLOUD_ID"] ?? throw new InvalidOperationException("ELASTIC_CLOUD_ID not configured");
+var esApiKey = configuration["ELASTIC_API_KEY"] ?? throw new InvalidOperationException("ELASTIC_API_KEY not configured");
+var settings = new ElasticsearchClientSettings(esCloudId, new ApiKey(esApiKey));
+var esClient = new ElasticsearchClient(settings);
 
-
+builder.Services.AddSingleton(esClient);
 builder.Services.AddSingleton<NpgsqlDataSource>(new NpgsqlDataSourceBuilder(connectionString).Build());
 
 builder.Services.AddScoped<IProductRepository, ProductRepository>();

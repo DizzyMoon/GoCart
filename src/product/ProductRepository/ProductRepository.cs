@@ -4,13 +4,20 @@ using Npgsql;
 using Product.ProductModels;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Elastic.Clients.Elasticsearch;
+using Elastic.Clients.Elasticsearch.Security;
+using ApiKey = Elastic.Transport.ApiKey;
 
 namespace Product.ProductRepository {
     public class ProductRepository : IProductRepository {
+        
         private readonly NpgsqlDataSource _dataSource;
+        private readonly ElasticsearchClient _elasticClient;
 
-        public ProductRepository(NpgsqlDataSource dataSource) {
+        public ProductRepository(NpgsqlDataSource dataSource, ElasticsearchClient elasticClient)
+        {
             _dataSource = dataSource;
+            _elasticClient = elasticClient;
         }
 
         private async Task<NpgsqlConnection> GetConnectionAsync() {
@@ -142,6 +149,8 @@ namespace Product.ProductRepository {
 
             ProductModel? newProduct = null;
             await using var reader = await command.ExecuteReaderAsync();
+            
+            
 
             if (await reader.ReadAsync())
             {
@@ -161,8 +170,10 @@ namespace Product.ProductRepository {
                     Images = reader.GetFieldValue<string[]>(reader.GetOrdinal("Images")),
                     Specifications = JsonSerializer.Deserialize<Dictionary<string, object>>(SpecificationsJson)
                 };
+                
+                await _elasticClient.IndexAsync(newProduct, idx => idx.Index("products").Id(newProduct.ProductCode));
             }
-
+            
             return newProduct;
         }
     }

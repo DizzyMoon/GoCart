@@ -25,10 +25,14 @@ StripeConfiguration.ApiKey = stripeSecretKey;
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
-builder.Services.AddScoped<PaymentIntentService>();
-builder.Services.AddScoped<PaymentMethodService>();
+builder.Services.AddScoped<IRabbitMqConnectionManager, RabbitMqConnectionManager>();
 
 builder.Services.AddScoped<IRabbitMqPublisher, RabbitMqPublisher>();
+
+builder.Services.AddScoped<RabbitMqPaymentFailureConsumer>();
+
+builder.Services.AddScoped<PaymentIntentService>();
+builder.Services.AddScoped<PaymentMethodService>();
 
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 
@@ -40,6 +44,12 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var connectionManager = scope.ServiceProvider.GetRequiredService<IRabbitMqConnectionManager>();
+    connectionManager.DeclareExchangesAndQueues();
+}
 
 if (app.Environment.IsDevelopment())
 {

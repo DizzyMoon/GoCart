@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using payment.Messaging;
 using payment.PaymentModels;
 using Stripe;
 
@@ -10,17 +11,20 @@ public class PaymentService : IPaymentService
     private readonly ILogger<PaymentService> _logger;
     private readonly PaymentIntentService _paymentIntentService;
     private readonly PaymentMethodService _paymentMethodService;
+    private readonly IRabbitMqPublisher _rabbitMqPublisher;
 
     public PaymentService(
         IConfiguration configuration, 
         ILogger<PaymentService> logger, 
         PaymentIntentService paymentIntentService,
-        PaymentMethodService paymentMethodService)
+        PaymentMethodService paymentMethodService,
+        IRabbitMqPublisher rabbitMqPublisher)
     {
         _configuration = configuration;
         _logger = logger;
         _paymentIntentService = paymentIntentService;
         _paymentMethodService = paymentMethodService;
+        _rabbitMqPublisher = rabbitMqPublisher;
     }
 
     public async Task<CreatePaymentResponse> Create(CreatePaymentRequest request)
@@ -79,11 +83,13 @@ public class PaymentService : IPaymentService
         catch (StripeException e)
         {
             _logger.LogError(e, $"Stripe API error during PaymentMethod creation: {e.Message}");
+            _rabbitMqPublisher.PublishPaymentFailedToOrder(request.Token, $"Stripe API error creating PaymentMethod: {e.Message}");
             throw new InvalidOperationException($"Stripe API error creating PaymentMethod: {e.Message}", e);
         }
         catch (Exception e)
         {
             _logger.LogError(e, "Unexpected error during PaymentMethod creation process.");
+            _rabbitMqPublisher.PublishPaymentFailedToOrder(request.Token, $"An unexpected server error occurred during PaymentMethod creation: {e.Message}");
             throw new InvalidOperationException($"An unexpected server error occurred during PaymentMethod creation: {e.Message}", e);
         }
 
@@ -110,6 +116,7 @@ public class PaymentService : IPaymentService
 
             if (paymentIntent.Status == "succeeded" || paymentIntent.Status == "requires_capture")
             {
+                _rabbitMqPublisher.PublishPaymentSuccess(paymentIntent.Id, paymentIntent.Amount, paymentIntent.Currency);
                 return new CreatePaymentResponse
                 {
                     PaymentIntentId = paymentIntent.Id,
@@ -118,17 +125,20 @@ public class PaymentService : IPaymentService
                 };
             }
             _logger.LogWarning($"PaymentIntent ID: {paymentIntent.Id} ended with unexpected status: {paymentIntent.Status}");
+            _rabbitMqPublisher.PublishPaymentFailedToOrder(paymentIntent.Id, $"Payment failed with status: {paymentIntent.Status}. Message: {paymentIntent.LastPaymentError?.Message}");
             throw new InvalidOperationException($"Payment failed with status: {paymentIntent.Status}. Message: {paymentIntent.LastPaymentError?.Message}");
             
         }
         catch (StripeException e)
         {
             _logger.LogError(e, $"Stripe API error during PaymentIntent creation: {e.Message}");
+            _rabbitMqPublisher.PublishPaymentFailedToOrder(request.Token, $"Stripe API error during PaymentIntent creation: {e.Message}");
             throw new InvalidOperationException($"Stripe API error: {e.Message}", e);
         }
         catch (Exception e)
         {
             _logger.LogError(e, "Unexpected error during PaymentIntent creation process.");
+            _rabbitMqPublisher.PublishPaymentFailedToOrder(request.Token, $"An unexpected server error occurred: {e.Message}");
             throw new InvalidOperationException($"An unexpected server error occurred: {e.Message}", e);
         }
     }

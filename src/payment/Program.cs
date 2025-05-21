@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using payment.PaymentServices;
+using payment.Messaging;
 using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +27,8 @@ builder.Logging.AddConsole();
 
 builder.Services.AddScoped<PaymentIntentService>();
 builder.Services.AddScoped<PaymentMethodService>();
+
+builder.Services.AddScoped<IRabbitMqPublisher, RabbitMqPublisher>();
 
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 

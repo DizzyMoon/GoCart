@@ -24,6 +24,9 @@ StripeConfiguration.ApiKey = stripeSecretKey;
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
+builder.Services.AddScoped<PaymentIntentService>();
+builder.Services.AddScoped<PaymentMethodService>();
+
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 builder.Services.AddControllers();

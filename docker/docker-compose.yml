@@ -61,6 +61,8 @@ services:
       - POSTGRES_PASSWORD=${PRODUCT_DB_PASSWORD}
       - ASPNETCORE_ENVIRONMENT="Development"
       - ELASTICSEARCH_HOST=http://elasticsearch:9200
+      - ELASTIC_CLOUD_ID=${ELASTIC_CLOUD_ID}
+      - ELASTIC_API_KEY=${ELASTIC_API_KEY}
     depends_on:
       - product_db
       - product_search

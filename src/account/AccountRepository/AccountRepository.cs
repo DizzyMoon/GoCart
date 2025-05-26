@@ -6,10 +6,12 @@ namespace Account.AccountRepository
     public class AccountRepository : IAccountRepository
     {
         private readonly NpgsqlDataSource _dataSource;
+        private readonly ILogger<AccountRepository> _logger;
 
-        public AccountRepository(NpgsqlDataSource dataSource)
+        public AccountRepository(NpgsqlDataSource dataSource, ILogger<AccountRepository> logger)
         {
-            _dataSource = dataSource;  
+            _dataSource = dataSource;
+            _logger = logger;
         }
 
         private async Task<NpgsqlConnection> GetConnectionAsync()
@@ -31,7 +33,7 @@ namespace Account.AccountRepository
                 {
                     Id = reader.GetInt32(reader.GetOrdinal("id")),
                     Email = reader.GetString(reader.GetOrdinal("email")),
-                    Name = reader.GetString(reader.GetOrdinal("name")), 
+                    Name = reader.GetString(reader.GetOrdinal("name")),
                     PasswordHash = reader.GetString(reader.GetOrdinal("passwordhash").GetHashCode()),
                     PhoneNumber = reader.GetString(reader.GetOrdinal("phonenumber")),
                 });
@@ -55,7 +57,7 @@ namespace Account.AccountRepository
                 {
                     Id = reader.GetInt32(reader.GetOrdinal("id")),
                     Email = reader.GetString(reader.GetOrdinal("email")),
-                    Name = reader.GetString(reader.GetOrdinal("name")), 
+                    Name = reader.GetString(reader.GetOrdinal("name")),
                     PasswordHash = reader.GetString(reader.GetOrdinal("passwordhash").GetHashCode()),
                     PhoneNumber = reader.GetString(reader.GetOrdinal("phonenumber")),
                 };
@@ -65,33 +67,44 @@ namespace Account.AccountRepository
         }
 
 
-        public async Task<AccountModel> Create(AccountModelRequest account)
+        public async Task<AccountModel?> Create(AccountModelRequest account)
         {
             await using var connection = await GetConnectionAsync();
             await using var command = new NpgsqlCommand(
-                "INSERT INTO accounts (email, name, passwordhash, phonenumber) VALUES (@email, @name, @passwordhash, @phonenumber) RETURNING id, email, passwordhash, phonenumber ", connection);
-            
-            command.Parameters.AddWithValue("@email", account.Email);
+                "INSERT INTO accounts (email, name, passwordhash, phonenumber) VALUES (@email, @name, @passwordhash, @phonenumber) RETURNING id, email, name, passwordhash, phonenumber", 
+                connection);
+
+            command.Parameters.AddWithValue("@email", account.Email.ToLowerInvariant());
             command.Parameters.AddWithValue("@name", account.Name);
             command.Parameters.AddWithValue("@passwordhash", account.Password);
             command.Parameters.AddWithValue("@phonenumber", account.PhoneNumber);
-            
-            AccountModel newAccount = null!;
-            await using var reader = await command.ExecuteReaderAsync();
 
-            if (await reader.ReadAsync())
+            AccountModel? newAccount = null;
+
+            try
             {
-                newAccount = new AccountModel
-                {
-                    Id = reader.GetInt32(reader.GetOrdinal("id")),
-                    Email = reader.GetString(reader.GetOrdinal("email")),
-                    Name = reader.GetString(reader.GetOrdinal("name")), 
-                    PasswordHash = reader.GetString(reader.GetOrdinal("passwordhash")),
-                    PhoneNumber = reader.GetString(reader.GetOrdinal("phonenumber")),
-                };
-            }
+                await using var reader = await command.ExecuteReaderAsync();
 
-            return newAccount;
+                if (await reader.ReadAsync())
+                {
+                    newAccount = new AccountModel
+                    {
+                        Id = reader.GetInt32(reader.GetOrdinal("id")),
+                        Email = reader.GetString(reader.GetOrdinal("email")),
+                        Name = reader.GetString(reader.GetOrdinal("name")),
+                        PasswordHash = reader.GetString(reader.GetOrdinal("passwordhash")),
+                        PhoneNumber = reader.GetString(reader.GetOrdinal("phonenumber")),
+                    };
+                }
+
+                return newAccount;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating account in repository.");
+                throw;
+            }
+            
         }
 
         public async Task<AccountModel> Update(int id, AccountUpdateRequest account)
@@ -100,7 +113,9 @@ namespace Account.AccountRepository
 
             // Get existing account
             AccountModel existingAccount;
-            await using (var cmd = new NpgsqlCommand("SELECT id, email, name, passwordhash, phonenumber FROM accounts WHERE id = @id", connection))
+            await using (var cmd = new NpgsqlCommand(
+                             "SELECT id, email, name, passwordhash, phonenumber FROM accounts WHERE id = @id",
+                             connection))
             {
                 cmd.Parameters.AddWithValue("@id", id);
                 await using var reader = await cmd.ExecuteReaderAsync();
@@ -125,7 +140,8 @@ namespace Account.AccountRepository
 
             // Update
             await using (var updateCmd = new NpgsqlCommand(
-                             @"UPDATE accounts SET email = @Email, name = @Name, passwordhash = @PasswordHash, phonenumber = @PhoneNumber WHERE id = @Id", connection))
+                             @"UPDATE accounts SET email = @Email, name = @Name, passwordhash = @PasswordHash, phonenumber = @PhoneNumber WHERE id = @Id",
+                             connection))
             {
                 updateCmd.Parameters.AddWithValue("@Id", id);
                 updateCmd.Parameters.AddWithValue("@Email", email);

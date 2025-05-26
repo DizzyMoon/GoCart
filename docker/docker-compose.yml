@@ -14,6 +14,8 @@ services:
       test: ["CMD", "rabbitmq", "status"]
       interval: 30s
       retries: 5
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
   
   account:
     build:
@@ -147,6 +149,7 @@ services:
       - POSTGRES_USER=${PRODUCT_DB_USER}
       - POSTGRES_PASSWORD=${PRODUCT_DB_PASSWORD}
     volumes:
+      - ../src/product/data/init.sql:/docker-entrypoint-initdb.d/init.sql
       - product_data:/var/lib/postgresql/data
     ports:
       - "5436:5432"
@@ -161,6 +164,7 @@ services:
       - POSTGRES_USER=${ACCOUNT_DB_USER}
       - POSTGRES_PASSWORD=${ACCOUNT_DB_PASSWORD}
     volumes:
+      - ../src/account/data/init.sql:/docker-entrypoint-initdb.d/init.sql
       - account_data:/var/lib/postgresql/data
     ports:
       - "5435:5432"
@@ -175,6 +179,7 @@ services:
       - POSTGRES_USER=${ORDER_DB_USER}
       - POSTGRES_PASSWORD=${ORDER_DB_PASSWORD}
     volumes:
+      - ../src/order/data/init.sql:/docker-entrypoint-initdb.d/init.sql
       - order_data:/var/lib/postgresql/data
     ports:
       - "5434:5432"
@@ -219,3 +224,4 @@ volumes:
   product_data:
   security_data:
   order_data:
+  rabbitmq_data:

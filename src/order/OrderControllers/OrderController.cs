@@ -53,30 +53,6 @@ namespace Order.OrderControllers
     }
 
     /// <summary>
-    /// Opret en ny Order
-    /// </summary>
-    /// <response code="200">Success</response>
-    /// <response code="405">Method Not Allowed</response>
-    /// <returns>Nye order returneres</returns>
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderModel))]
-    [ProducesResponseType(StatusCodes.Status405MethodNotAllowed, Type = typeof(OrderModel))]
-    [Produces("application/json")]
-    [HttpPost]
-    [Route("")]
-    public async Task<IActionResult> Create()
-    {
-      try
-      {
-        var result = await _orderService.Create(new CreateOrderModel());
-        return Ok(result);
-      }
-      catch (InvalidOperationException ex)
-      {
-        return StatusCode(StatusCodes.Status405MethodNotAllowed, ex.Message);
-      }
-    }
-
-    /// <summary>
     /// Slet en Order
     /// </summary>
     /// <param name="orderId"></param>

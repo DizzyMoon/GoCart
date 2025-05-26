@@ -1,13 +1,7 @@
 using Microsoft.OpenApi.Models;
-
-using System;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using payment.Messaging.Connection;
+using payment.Messaging.Publishers;
 using payment.PaymentServices;
-using payment.Messaging;
 using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,9 +21,7 @@ builder.Logging.AddConsole();
 
 builder.Services.AddScoped<IRabbitMqConnectionManager, RabbitMqConnectionManager>();
 
-builder.Services.AddScoped<IRabbitMqPublisher, RabbitMqPublisher>();
-
-builder.Services.AddScoped<RabbitMqPaymentFailureConsumer>();
+builder.Services.AddScoped<IMessagePublisher, MessagePublisher>();
 
 builder.Services.AddScoped<PaymentIntentService>();
 builder.Services.AddScoped<PaymentMethodService>();
@@ -45,10 +37,10 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
+var rabbitMqManager = app.Services.GetRequiredService<IRabbitMqConnectionManager>();
+if (!rabbitMqManager.IsConnected)
 {
-    var connectionManager = scope.ServiceProvider.GetRequiredService<IRabbitMqConnectionManager>();
-    connectionManager.DeclareExchangesAndQueues();
+    rabbitMqManager.TryConnect();
 }
 
 if (app.Environment.IsDevelopment())

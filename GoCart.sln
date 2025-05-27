@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "payment", "src\payment\paym
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "order", "src\order\order.csproj", "{DD81A3E9-262B-4F70-A2B0-C405AF128EE1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sync-service", "src\sync-service\sync-service.csproj", "{BE7A7222-7C4E-4B6F-861B-91A2B3C4D5E6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,6 +50,7 @@ Global
 		{0C18C95E-80BB-D56C-B019-7CF86972D3CB} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{CD3F8F63-7AEF-C94C-687E-BAC0CC89B8EF} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{DD81A3E9-262B-4F70-A2B0-C405AF128EE1} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{BE7A7222-7C4E-4B6F-861B-91A2B3C4D5E6} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {04620EBF-581D-4232-AA7A-D204762D36E8}

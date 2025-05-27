@@ -1,9 +1,11 @@
 using Npgsql;
 using Microsoft.OpenApi.Models;
-using Product.ProductRepository;
-using Product.ProductServices;
 using Elastic.Clients.Elasticsearch;
 using Elastic.Transport;
+using product.Messaging.Connection;
+using sync_service.Messaging.Connection;
+using sync_service.Messaging.Consumers;
+using sync_service.ProductServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,9 +30,14 @@ var esClient = new ElasticsearchClient(settings);
 builder.Services.AddSingleton(esClient);
 builder.Services.AddSingleton(new NpgsqlDataSourceBuilder(connectionString).Build());
 
-
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
+
+builder.Services.AddHttpClient();
+
+builder.Services.AddSingleton<IRabbitMqConnectionManager, RabbitMqConnectionManager>();
+
+builder.Services.AddHostedService<AddProductSucceededEventConsumer>();
+builder.Services.AddHostedService<AddProductFailedEventConsumer>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -41,6 +48,46 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
+
+void ConfigureRabbitMqInfrastructure(IApplicationBuilder webApp)
+{
+    var logger = webApp.ApplicationServices.GetRequiredService<ILogger<Program>>();
+    logger.LogInformation("Sync Serivce: Configuring RabbitMQ infrastructure at startup...");
+    try
+    {
+        using (var serviceScope = webApp.ApplicationServices.CreateScope())
+        {
+            var rabbitMqManager = serviceScope.ServiceProvider.GetRequiredService<IRabbitMqConnectionManager>();
+
+            if (!rabbitMqManager.IsConnected)
+            {
+                logger.LogInformation("Sync Service: RabbitMQ not connected, attempting to connect...");
+                if (rabbitMqManager.TryConnect())
+                {
+                    logger.LogInformation("Sync Service: Successfully connected to RabbitMQ.");
+                    rabbitMqManager.DeclareQueuesAndBindings();
+                }
+                else
+                {
+                    logger.LogError(
+                        "Sync Service: CRITICAL - Failed to connect to RabbitMQ during startup. Consumers may not start.");
+                }
+            }
+            else
+            {
+                logger.LogInformation(
+                    "Sync Service: Already connected to RabbitMQ. Ensuring queues and bindings are declared.");
+                rabbitMqManager.DeclareQueuesAndBindings();
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        logger.LogCritical(ex, "Order Service: CRITICAL - An unhandled error occurred while configuring RabbitMQ infrastructure during startup.");
+    }
+}
+
+ConfigureRabbitMqInfrastructure(app);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

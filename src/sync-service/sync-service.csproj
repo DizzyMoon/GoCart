@@ -17,4 +17,8 @@
     <PackageReference Include="Swagger" Version="1.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\product\product.csproj" />
+  </ItemGroup>
+
 </Project>

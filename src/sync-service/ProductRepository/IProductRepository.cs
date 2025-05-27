@@ -1,4 +1,4 @@
-using Product.ProductModels;
+using sync_service.ProductModels;
 
 namespace sync_service.ProductRepository
 {

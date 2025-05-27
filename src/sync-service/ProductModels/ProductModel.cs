@@ -1,6 +1,4 @@
-using System.Collections.Generic;
-
-namespace Product.ProductModels {
+namespace sync_service.ProductModels {
     public class ProductModel {
         public string ProductCode {get; set;}
         public string Name {get; set;}

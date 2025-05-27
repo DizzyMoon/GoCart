@@ -1,5 +1,5 @@
 using Nest;
-using Product.ProductModels;
+using sync_service.ProductModels;
 
 namespace sync_service.ProductRepository
 {
@@ -7,7 +7,7 @@ namespace sync_service.ProductRepository
     {
         private readonly ElasticClient _esClient;
         private readonly ILogger<ProductRepository> _logger;
-        private const string ProductsIndexName = "products";
+        private const string ProductsIndexName = "dls-exam1";
 
         public ProductRepository(ElasticClient esClient, ILogger<ProductRepository> logger)
         {
@@ -37,6 +37,8 @@ namespace sync_service.ProductRepository
 
             try
             {
+                
+                // vaesClient.IndexAsync(product, idx => idx.Index("products").Id(product.ProductCode));
                 var response =
                     await _esClient.CreateAsync(product, c => c.Index(ProductsIndexName).Id(product.ProductCode));
 

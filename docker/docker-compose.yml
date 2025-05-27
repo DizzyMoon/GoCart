@@ -115,26 +115,25 @@ services:
       - ELASTIC_API_KEY=${ELASTIC_API_KEY}
     depends_on:
       - product_db
-      - product_search
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       retries: 3
-      
-  product_search:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
-    container_name: elasticsearch
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-#      - ELASTICSEARCH_USERNAME=${PRODUCT_SEARCH_DB_USER}
-#      - ELASTICSEARCH_PASSWORD=${PRODUCT_SEARCH_DB_PASSWORD}
-    ports:
-      - "9200:9200"
-    networks:
-      - microservices
-    volumes:
-      - esdata:/usr/share/elasticsearch/data
+
+#  product_search:
+#    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+#    container_name: elasticsearch
+#    environment:
+#      - discovery.type=single-node
+#      - xpack.security.enabled=false
+##      - ELASTICSEARCH_USERNAME=${PRODUCT_SEARCH_DB_USER}
+##      - ELASTICSEARCH_PASSWORD=${PRODUCT_SEARCH_DB_PASSWORD}
+#    ports:
+#      - "9200:9200"
+#    networks:
+#      - microservices
+#    volumes:
+#      - esdata:/usr/share/elasticsearch/data
 
 
   security:

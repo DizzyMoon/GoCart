@@ -2,17 +2,21 @@ using Npgsql;
 using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
+using product.Messaging.Events;
 using Product.ProductRepository;
 using Product.ProductModels;
+using product.Messaging.Publishers;
 
 namespace Product.ProductServices{
     class ProductService : IProductService{
         
         private IProductRepository _productRepository;
+        private IMessagePublisher _messagePublisher;
 
-        public ProductService (IProductRepository productRepository)
+        public ProductService (IProductRepository productRepository, IMessagePublisher messagePublisher)
         {
             _productRepository = productRepository;
+            _messagePublisher = messagePublisher;
         }
         
         public async Task<IEnumerable<ProductModel>> GetQueryCollection() 
@@ -48,7 +52,35 @@ namespace Product.ProductServices{
                 Specifications = productDto.Specifications
             };
 
-            return await _productRepository.Create(newProduct);
+            var succeededEvent = new AddProductSucceededEvent
+            {
+                Name = newProduct.ProductCode,
+                Price = newProduct.Price,
+                Description = newProduct.Description,
+                Variants = newProduct.Variants,
+                Discounts = newProduct.Discounts,
+                Images = newProduct.Images,
+                Specifications = newProduct.Specifications
+            };
+            
+
+            try
+            {
+                _messagePublisher.AddProductSucceededEventAsync(succeededEvent);
+            }
+            catch (Exception e)
+            {
+                var failedEvent = new AddProductFailedEvent
+                {
+                    Name = newProduct.Name,
+                    Reason = e.Message
+                };
+                _messagePublisher.AddProductFailedEventAsync(failedEvent);
+            }
+            
+            var response = await _productRepository.Create(newProduct);
+
+            return response;
         }
 
         public async Task<bool> Update(ProductModel product)

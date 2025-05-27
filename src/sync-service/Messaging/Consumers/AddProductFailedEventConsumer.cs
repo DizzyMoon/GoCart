@@ -4,7 +4,6 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
 using System.Text.Json;
-using product.Messaging.Connection;
 using sync_service.ProductServices;
 
 namespace sync_service.Messaging.Consumers
@@ -86,21 +85,21 @@ namespace sync_service.Messaging.Consumers
 
                             _channel.BasicAck(ea.DeliveryTag, false); // Acknowledge after successful processing
                             _logger.LogInformation(
-                                "PaymentFailedEventConsumer: PaymentFailedEvent processed. DeliveryTag: {DeliveryTag}",
+                                "AddProductFailedEventConsumer: AddProductFailedEvent processed. DeliveryTag: {DeliveryTag}",
                                 ea.DeliveryTag);
                         }
                         catch (JsonException jsonEx)
                         {
                             _logger.LogError(jsonEx,
-                                "PaymentFailedEventConsumer: JSON Deserialization error. DeliveryTag: {DeliveryTag}. Message: {MessageBody}. Sending to DLX.",
+                                "AddProductFailedEventConsumer: JSON Deserialization error. DeliveryTag: {DeliveryTag}. Message: {MessageBody}. Sending to DLX.",
                                 ea.DeliveryTag, messageBody);
                             _channel.BasicNack(ea.DeliveryTag, false, false); // To DLX
                         }
                         catch (Exception
-                               ex) // Catch exceptions from IOrderService.ProcessFailedPaymentEventAsync or other issues
+                               ex) // Catch exceptions from IOrderService.ProcessFailedAddProductEventAsync or other issues
                         {
                             _logger.LogError(ex,
-                                "AddProductFailedEventConsumer: Error processing PaymentFailedEvent for AddProductAttemptReference {ProductName}. DeliveryTag: {DeliveryTag}. Message: {MessageBody}. Sending to DLX.",
+                                "AddProductFailedEventConsumer: Error processing AddProductFailedEvent for AddProductAttemptReference {ProductName}. DeliveryTag: {DeliveryTag}. Message: {MessageBody}. Sending to DLX.",
                                 addProductEvent?.Name, ea.DeliveryTag, messageBody);
                             _channel.BasicNack(ea.DeliveryTag, false, false); // To DLX
                         }

@@ -1,17 +1,10 @@
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using product.Messaging.Connection;
 using sync_service.Messaging.Connection;
-using sync_service.Messaging.Events;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using System;
 using System.Text;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
-using Product.ProductModels;
+using sync_service.Messaging.Events;
+using sync_service.ProductModels;
 using sync_service.ProductServices;
 
 namespace sync_service.Messaging.Consumers
@@ -70,8 +63,8 @@ namespace sync_service.Messaging.Consumers
 
                         try
                         {
-                            var product = JsonSerializer.Deserialize<ProductModel>(messageBody);
-                            if (product == null)
+                            var productEvent = JsonSerializer.Deserialize<AddProductSucceededEvent>(messageBody);
+                            if (productEvent == null)
                             {
                                 _logger.LogError("Failed to deserialize AddProductSucceededEvent or event is null. Message: {MessageBody}", messageBody);
                                 _channel.BasicNack(ea.DeliveryTag, false, false); // To DLX
@@ -82,20 +75,20 @@ namespace sync_service.Messaging.Consumers
                             using (var scope = _serviceProvider.CreateScope())
                             {
                                 var orderService = scope.ServiceProvider.GetRequiredService<IProductService>();
-                                await orderService.createProduct(product);
+                                await orderService.ProcessSuccessfulAddProductEventAsync(productEvent);
                             }
                             
                             _channel.BasicAck(ea.DeliveryTag, false); // Acknowledge after successful processing
-                            _logger.LogInformation("PaymentSucceededEvent processed successfully. DeliveryTag: {DeliveryTag}", ea.DeliveryTag);
+                            _logger.LogInformation("AddProductSucceededEvent processed successfully. DeliveryTag: {DeliveryTag}", ea.DeliveryTag);
                         }
                         catch (JsonException jsonEx)
                         {
-                            _logger.LogError(jsonEx, "JSON Deserialization error for PaymentSucceededEvent. DeliveryTag: {DeliveryTag}. Message: {MessageBody}. Sending to DLX.", ea.DeliveryTag, messageBody);
+                            _logger.LogError(jsonEx, "JSON Deserialization error for AddProductSucceededEvent. DeliveryTag: {DeliveryTag}. Message: {MessageBody}. Sending to DLX.", ea.DeliveryTag, messageBody);
                             _channel.BasicNack(ea.DeliveryTag, false, false); // To DLX
                         }
-                        catch (Exception ex) // Catch exceptions from IOrderService.CreateOrderFromSuccessfulPaymentAsync or other issues
+                        catch (Exception ex) // Catch exceptions from IOrderService.CreateOrderFromSuccessfulAddProductAsync or other issues
                         {
-                            _logger.LogError(ex, "Error processing PaymentSucceededEvent. DeliveryTag: {DeliveryTag}. Message: {MessageBody}. Sending to DLX.", ea.DeliveryTag, messageBody);
+                            _logger.LogError(ex, "Error processing AddProductSucceededEvent. DeliveryTag: {DeliveryTag}. Message: {MessageBody}. Sending to DLX.", ea.DeliveryTag, messageBody);
                             _channel.BasicNack(ea.DeliveryTag, false, false); // To DLX
                         }
                     };

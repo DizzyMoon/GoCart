@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Elasticsearch.Net" Version="7.17.5" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.0" />
     <PackageReference Include="Elastic.Clients.Elasticsearch" Version="9.0.3" />
     <PackageReference Include="Microsoft.OpenApi" Version="1.6.24" />
@@ -15,10 +16,6 @@
     <PackageReference Include="Npgsql" Version="9.0.3" />
     <PackageReference Include="RabbitMQ.Client" Version="6.8.1" />
     <PackageReference Include="Swagger" Version="1.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\product\product.csproj" />
   </ItemGroup>
 
 </Project>

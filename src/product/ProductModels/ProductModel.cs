@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Product.ProductModels {
     public class ProductModel {
         public string ProductCode {get; set;}

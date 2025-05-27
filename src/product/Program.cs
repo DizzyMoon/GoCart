@@ -11,6 +11,8 @@ using Product.ProductRepository;
 using Product.ProductServices;
 using Elastic.Clients.Elasticsearch;
 using Elastic.Transport;
+using product.Messaging.Connection;
+using product.Messaging.Publishers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +37,9 @@ builder.Services.AddSingleton<NpgsqlDataSource>(new NpgsqlDataSourceBuilder(conn
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
 
+builder.Services.AddScoped<IRabbitMqConnectionManager, RabbitMqConnectionManager>();
+builder.Services.AddScoped<IMessagePublisher, MessagePublisher>();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -43,6 +48,12 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
+
+var rabbitMqManager = app.Services.GetRequiredService<IRabbitMqConnectionManager>();
+if (!rabbitMqManager.IsConnected)
+{
+    rabbitMqManager.TryConnect();
+}
 
 if (app.Environment.IsDevelopment())
 {

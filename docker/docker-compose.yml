@@ -94,32 +94,6 @@ services:
       interval: 30s
       retries: 3
 
-  sync-service:
-    build:
-      context: ..
-      dockerfile: src/sync-service/Dockerfile
-    container_name: sync-service
-    ports:
-      - "5006:8080"
-    networks:
-      - microservices
-    environment:
-      - POSTGRES_HOST=${PRODUCT_DB_HOST}
-      - POSTGRES_PORT=${PRODUCT_DB_PORT}
-      - POSTGRES_DATABASE=${PRODUCT_DB}
-      - POSTGRES_USER=${PRODUCT_DB_USER}
-      - POSTGRES_PASSWORD=${PRODUCT_DB_PASSWORD}
-      - ASPNETCORE_ENVIRONMENT="Development"
-      - ELASTICSEARCH_HOST=http://elasticsearch:9200
-      - ELASTIC_CLOUD_ID=${ELASTIC_CLOUD_ID}
-      - ELASTIC_API_KEY=${ELASTIC_API_KEY}
-    depends_on:
-      - product_db
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 30s
-      retries: 3
-
   product:
     build:
       context: ..

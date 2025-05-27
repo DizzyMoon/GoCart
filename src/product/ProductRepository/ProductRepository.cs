@@ -149,8 +149,8 @@ namespace Product.ProductRepository {
 
             ProductModel? newProduct = null;
             await using var reader = await command.ExecuteReaderAsync();
-            
-            
+
+
 
             if (await reader.ReadAsync())
             {
@@ -170,8 +170,10 @@ namespace Product.ProductRepository {
                     Images = reader.GetFieldValue<string[]>(reader.GetOrdinal("Images")),
                     Specifications = JsonSerializer.Deserialize<Dictionary<string, object>>(SpecificationsJson)
                 };
+
+                // await _elasticClient.IndexAsync(newProduct, idx => idx.Index("products").Id(newProduct.ProductCode));
                 
-                await _elasticClient.IndexAsync(newProduct, idx => idx.Index("products").Id(newProduct.ProductCode));
+                
             }
             
             return newProduct;

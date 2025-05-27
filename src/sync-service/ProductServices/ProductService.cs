@@ -1,5 +1,6 @@
 using Product.ProductModels;
 using sync_service.Messaging.Events;
+using sync_service.ProductRepository;
 
 namespace sync_service.ProductServices;
 using Npgsql;
@@ -7,7 +8,7 @@ using Elastic.Clients.Elasticsearch;
 using Npgsql;
 using Nest;
 
-public class ProductService(ElasticClient esClient) : IProductService
+public class ProductService(ElasticClient esClient, IProductRepository productRepository, ILogger<ProductService> logger) : IProductService
 {
     // public async Task SyncElasticsearchWithPostgres()
     // {
@@ -57,11 +58,41 @@ public class ProductService(ElasticClient esClient) : IProductService
     //         Console.WriteLine($"Synced {products.Count} products to Elasticsearch.");
     //     }
     // }
+    
+    private string GenerateProductCode()
+    {
+        return Guid.NewGuid().ToString("D").ToUpper();
+    }
 
     public async Task<ProductModel?> createProduct(ProductModel product)
     {
-        Console.WriteLine("We hit something :DDDD");
-        throw new NotImplementedException();
+        if (product == null)
+        {
+            throw new ArgumentNullException(nameof(product));
+        }
+
+        var newProduct = new ProductModel
+        {
+            ProductCode = GenerateProductCode(),
+            Name = product.Name,
+            Price = product.Price,
+            Description = product.Description,
+            Variants = product.Variants,
+            Discounts = product.Discounts,
+            Images = product.Images,
+            Specifications = product.Specifications
+        };
+
+        try
+        {
+            var createdProduct = await productRepository.Create(newProduct);
+            return createdProduct;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"SyncService: Database error creating product from AddProductSucceededEvent");
+            throw;
+        }
     }
 
     public async Task<ProductModel?> updateProduct(ProductModel product)

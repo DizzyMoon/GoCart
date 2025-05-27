@@ -1,14 +1,10 @@
 using Microsoft.OpenApi.Models;
 using Npgsql;
+using order.Messaging.Connection;
+using order.Messaging.Consumers;
 using Order.OrderRepository;
 using order.OrderService;
 using Order.OrderService;
-using System;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +26,13 @@ builder.Services.AddSingleton<NpgsqlDataSource>(new NpgsqlDataSourceBuilder(conn
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
+builder.Services.AddHttpClient();
+
+builder.Services.AddSingleton<IRabbitMqConnectionManager, RabbitMqConnectionManager>();
+
+builder.Services.AddHostedService<PaymentSucceededEventConsumer>();
+builder.Services.AddHostedService<PaymentFailedEventConsumer>();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -38,6 +41,48 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
+
+void ConfigureRabbitMqInfrastructure(IApplicationBuilder webApp)
+{
+    var logger = webApp.ApplicationServices.GetRequiredService<ILogger<Program>>(); // Or a specific logger for startup
+    logger.LogInformation("Order Service: Configuring RabbitMQ infrastructure at startup...");
+    try
+    {
+        using (var serviceScope = webApp.ApplicationServices.CreateScope())
+        {
+            var rabbitMqManager = serviceScope.ServiceProvider.GetRequiredService<IRabbitMqConnectionManager>();
+            
+            if (!rabbitMqManager.IsConnected)
+            {
+                logger.LogInformation("Order Service: RabbitMQ not connected, attempting to connect...");
+                if (rabbitMqManager.TryConnect()) // TryConnect should be synchronous or handled appropriately if async
+                {
+                    logger.LogInformation("Order Service: Successfully connected to RabbitMQ.");
+                    rabbitMqManager.DeclareQueuesAndBindings(); // Declare after successful connection
+                }
+                else
+                {
+                    logger.LogError("Order Service: CRITICAL - Failed to connect to RabbitMQ during startup. Consumers may not start.");
+                    // Consider throwing an exception here if RabbitMQ is essential for startup
+                    // throw new Exception("Failed to connect to RabbitMQ during startup.");
+                }
+            }
+            else
+            {
+                logger.LogInformation("Order Service: Already connected to RabbitMQ. Ensuring queues and bindings are declared.");
+                rabbitMqManager.DeclareQueuesAndBindings(); // Ensure declarations if already connected
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        logger.LogCritical(ex, "Order Service: CRITICAL - An unhandled error occurred while configuring RabbitMQ infrastructure during startup.");
+        // Depending on policy, you might want to re-throw to prevent the app from starting in a bad state.
+        // throw; 
+    }
+}
+
+ConfigureRabbitMqInfrastructure(app);
 
 if (app.Environment.IsDevelopment())
 {

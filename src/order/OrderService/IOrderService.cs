@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using order.Messaging.Events;
 using Order.OrderModels;
 
 namespace Order.OrderService
@@ -8,8 +9,10 @@ namespace Order.OrderService
   {
     Task<IEnumerable<OrderModel>> GetQueryCollection();
     Task<OrderModel?> Get(int orderId);
-    Task<OrderModel> Create(CreateOrderModel dto);
     Task<OrderModel> Delete(int orderId);
+
+    Task<OrderModel?> ProcessSuccessfulPaymentEventAsync(PaymentSucceededEvent paymentSucceededEvent);
+    Task ProcessFailedPaymentEventAsync(PaymentFailedEvent paymentFailedEvent);
   }
   
 }

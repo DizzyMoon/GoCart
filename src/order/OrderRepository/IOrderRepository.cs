@@ -8,6 +8,7 @@ namespace Order.OrderRepository
   {
     Task<IEnumerable<OrderModel>> GetQueryCollection();
     Task<OrderModel?> Get(int orderId);
+    Task<OrderModel?> GetByPaymentIntentIdAsync(string paymentIntentId);
     Task<OrderModel> Create(OrderModel order);
     Task<OrderModel?> Delete(int orderId);
   }
